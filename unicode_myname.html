@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>내 이름을 유니코드로!</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Arial", sans-serif;
+      background: linear-gradient(135deg, #f7fbff, #eef4ff 45%, #fdf8ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      color: #2f3a4a;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 560px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 28px;
+      padding: 34px 28px;
+      box-shadow: 0 14px 40px rgba(90, 120, 180, 0.12);
+      backdrop-filter: blur(8px);
+    }
+
+    .title {
+      text-align: center;
+      margin: 0 0 8px;
+      font-size: 32px;
+      font-weight: 700;
+      color: #2d3e63;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      text-align: center;
+      margin: 0 0 28px;
+      color: #6f7c91;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .input-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 15px;
+      font-weight: 700;
+      color: #4a5d84;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid #d9e3f3;
+      border-radius: 16px;
+      font-size: 16px;
+      outline: none;
+      background: #ffffff;
+      color: #2f3a4a;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+
+    input:focus {
+      border-color: #89aef5;
+      box-shadow: 0 0 0 4px rgba(137, 174, 245, 0.18);
+    }
+
+    button {
+      width: 100%;
+      margin-top: 8px;
+      border: none;
+      padding: 15px 18px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #7aa8ff, #5d8df2);
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(93, 141, 242, 0.28);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 22px rgba(93, 141, 242, 0.34);
+    }
+
+    .result {
+      margin-top: 24px;
+      padding: 20px;
+      border-radius: 20px;
+      background: #f9fbff;
+      border: 1px solid #e7eefb;
+      color: #445066;
+      font-size: 16px;
+      line-height: 1.9;
+      min-height: 84px;
+    }
+
+    .correct {
+      color: #2c9a63;
+      font-weight: 700;
+    }
+
+    .wrong {
+      color: #d85b72;
+      font-weight: 700;
+    }
+
+    .hint-box {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: #f4f7ff;
+      color: #6d7ea1;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 28px 20px;
+        border-radius: 24px;
+      }
+
+      .title {
+        font-size: 28px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+      }
+
+      input,
+      button {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">내 이름을 유니코드로!</h1>
+    <p class="subtitle">이름을 입력하고, 각 글자의 유니코드 값을 16진수와 10진수로 맞혀 보세요.</p>
+
+    <div class="input-group">
+      <label for="name">이름</label>
+      <input type="text" id="name" placeholder="예: 홍길동" />
+    </div>
+
+    <div class="input-group">
+      <label for="hex">16진수 (공백 없이)</label>
+      <input type="text" id="hex" placeholder="예: AC00" />
+    </div>
+
+    <div class="input-group">
+      <label for="dec">10진수 (공백 없이, 이어붙이기)</label>
+      <input type="text" id="dec" placeholder="예: 44032" />
+    </div>
+
+    <button onclick="check()">확인</button>
+
+    <div class="result" id="result">
+      결과가 여기에 표시됩니다.
+    </div>
+
+    <div class="hint-box">
+      입력한 이름의 각 글자를 유니코드로 바꾼 뒤,  
+      16진수는 대문자로, 10진수는 공백 없이 이어서 입력하면 됩니다.
+    </div>
+  </div>
+
+  <script>
+    function stringToCodePoints(str) {
+      return Array.from(str).map(c => c.codePointAt(0));
+    }
+
+    function codePointsToHex(codePoints) {
+      return codePoints.map(cp => cp.toString(16).toUpperCase()).join('');
+    }
+
+    function codePointsToDec(codePoints) {
+      return codePoints.map(cp => cp.toString(10)).join('');
+    }
+
+    function check() {
+      const name = document.getElementById('name').value.trim();
+      const hexInput = document.getElementById('hex').value.trim().toUpperCase();
+      const decInput = document.getElementById('dec').value.trim();
+
+      const resultBox = document.getElementById('result');
+
+      if (!name) {
+        resultBox.innerHTML = `<span class="wrong">이름을 먼저 입력해 주세요.</span>`;
+        return;
+      }
+
+      const codePoints = stringToCodePoints(name);
+      const hexActual = codePointsToHex(codePoints);
+      const decActual = codePointsToDec(codePoints);
+
+      const isHexCorrect = hexInput === hexActual;
+      const isDecCorrect = decInput === decActual;
+
+      let resultHTML = '';
+      resultHTML += `16진수: <span class="${isHexCorrect ? 'correct' : 'wrong'}">${isHexCorrect ? '정답입니다 ✅' : '오답입니다 ❌'}</span><br>`;
+      resultHTML += `10진수: <span class="${isDecCorrect ? 'correct' : 'wrong'}">${isDecCorrect ? '정답입니다 ✅' : '오답입니다 ❌'}</span>`;
+
+      resultBox.innerHTML = resultHTML;
+    }
+  </script>
+</body>
+</html>
