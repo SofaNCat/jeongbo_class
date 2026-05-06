@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>랜덤 진법 변환 퀴즈</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #f7fbff, #eef4ff 45%, #fdf8ff);
+      min-height: 100vh;
+      color: #2f3a4a;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 20px 50px;
+    }
+
+    .hero {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.88);
+      border-radius: 28px;
+      padding: 34px 24px;
+      box-shadow: 0 14px 40px rgba(90, 120, 180, 0.12);
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: 38px;
+      color: #2d3e63;
+      letter-spacing: -0.5px;
+    }
+
+    .hero p {
+      margin: 0;
+      color: #6f7c91;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .control-box {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 10px 28px rgba(90, 120, 180, 0.08);
+      margin-bottom: 14px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button {
+      border: none;
+      padding: 14px 22px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #7aa8ff, #5d8df2);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(93, 141, 242, 0.28);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 22px rgba(93, 141, 242, 0.34);
+    }
+
+    .sub-btn {
+      background: linear-gradient(135deg, #9db7f5, #7e9feb);
+    }
+
+    .progress-card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 24px;
+      padding: 18px 20px;
+      box-shadow: 0 10px 28px rgba(90, 120, 180, 0.08);
+      margin-bottom: 24px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .progress-label {
+      font-size: 16px;
+      font-weight: 700;
+      color: #4a5d84;
+    }
+
+    .progress-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: #6d7ea1;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 16px;
+      background: #e9f0fb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(135deg, #7aa8ff, #5d8df2);
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    #bonus-message {
+      margin-top: 16px;
+      display: none;
+      font-size: 22px;
+      font-weight: 700;
+      color: #d26a44;
+      background: #fff7f1;
+      border: 1px solid #f5d8c8;
+      border-radius: 20px;
+      padding: 16px 18px;
+      text-align: center;
+    }
+
+    .section {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 24px;
+      padding: 24px 22px;
+      box-shadow: 0 10px 28px rgba(90, 120, 180, 0.08);
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #33476b;
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e8eef9;
+    }
+
+    .question-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .question-box {
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid #edf2fb;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+
+    .question-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: #33476b;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .answer-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      min-width: 150px;
+      padding: 12px 14px;
+      border: 1.5px solid #d9e3f3;
+      border-radius: 14px;
+      font-size: 15px;
+      outline: none;
+      background: #fff;
+      color: #2f3a4a;
+      transition: all 0.2s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: #89aef5;
+      box-shadow: 0 0 0 4px rgba(137, 174, 245, 0.18);
+    }
+
+    .correct {
+      color: #2c9a63;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .wrong {
+      color: #d85b72;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .summary-box {
+      margin-top: 24px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 10px 28px rgba(90, 120, 180, 0.08);
+      text-align: center;
+    }
+
+    .summary-text {
+      font-size: 18px;
+      color: #4a5d84;
+      font-weight: 700;
+    }
+
+    @media (max-width: 800px) {
+      .question-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero h1 {
+        font-size: 30px;
+      }
+
+      .question-text {
+        font-size: 17px;
+      }
+
+      .answer-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>랜덤 진법 변환 퀴즈</h1>
+      <p>유형별로 5문제씩, 총 20문제가 생성됩니다.</p>
+    </div>
+
+    <div class="control-box">
+      <button onclick="generateQuiz()">새 문제 만들기</button>
+      <button class="sub-btn" onclick="checkAnswers()">정답 확인</button>
+    </div>
+
+    <div class="progress-card">
+      <div class="progress-top">
+        <span class="progress-label">진행률</span>
+        <span class="progress-text" id="progressText">0 / 20 (0%)</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <div id="bonus-message">선생님, 자유시간 주세요!</div>
+    </div>
+
+    <div id="quizSections"></div>
+
+    <div class="summary-box">
+      <div class="summary-text" id="summaryText">문제를 생성해 보세요.</div>
+    </div>
+  </div>
+
+  <script>
+    let currentQuiz = [];
+
+    const sectionOrder = [
+      { key: "binToDec", title: "2진수 → 10진수" },
+      { key: "decToBin", title: "10진수 → 2진수" },
+      { key: "hexToDec", title: "16진수 → 10진수" },
+      { key: "decToHex", title: "10진수 → 16진수" }
+    ];
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateQuestion(type) {
+      if (type === "decToBin") {
+        const num = randomInt(2, 63);
+        return {
+          type,
+          question: `${num}을(를) 2진수로 바꾸세요.`,
+          answer: num.toString(2).toUpperCase()
+        };
+      }
+
+      if (type === "binToDec") {
+        const num = randomInt(2, 63);
+        return {
+          type,
+          question: `${num.toString(2)}을(를) 10진수로 바꾸세요.`,
+          answer: String(num)
+        };
+      }
+
+      if (type === "decToHex") {
+        const num = randomInt(10, 255);
+        return {
+          type,
+          question: `${num}을(를) 16진수로 바꾸세요.`,
+          answer: num.toString(16).toUpperCase()
+        };
+      }
+
+      if (type === "hexToDec") {
+        const num = randomInt(10, 255);
+        return {
+          type,
+          question: `${num.toString(16).toUpperCase()}을(를) 10진수로 바꾸세요.`,
+          answer: String(num)
+        };
+      }
+    }
+
+    function updateProgress(correctCount, totalCount) {
+      const percent = totalCount === 0 ? 0 : Math.round((correctCount / totalCount) * 100);
+      document.getElementById("progressText").textContent = `${correctCount} / ${totalCount} (${percent}%)`;
+      document.getElementById("progressFill").style.width = `${percent}%`;
+    }
+
+    function generateQuiz() {
+      const quizSections = document.getElementById("quizSections");
+      const summaryText = document.getElementById("summaryText");
+      const bonusMessage = document.getElementById("bonus-message");
+
+      currentQuiz = [];
+
+      sectionOrder.forEach(section => {
+        const questions = [];
+        for (let i = 0; i < 5; i++) {
+          questions.push(generateQuestion(section.key));
+        }
+        currentQuiz.push({
+          key: section.key,
+          title: section.title,
+          questions
+        });
+      });
+
+      let globalIndex = 0;
+
+      quizSections.innerHTML = currentQuiz.map(section => {
+        const questionHtml = section.questions.map((item) => {
+          const html = `
+            <div class="question-box">
+              <div class="question-text">${globalIndex + 1}. ${item.question}</div>
+              <div class="answer-row">
+                <input type="text" id="answer-${globalIndex}" placeholder="정답 입력">
+                <span id="result-${globalIndex}"></span>
+              </div>
+            </div>
+          `;
+          globalIndex++;
+          return html;
+        }).join("");
+
+        return `
+          <div class="section">
+            <div class="section-title">${section.title}</div>
+            <div class="question-grid">
+              ${questionHtml}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      summaryText.textContent = `총 20문제가 생성되었습니다.`;
+      bonusMessage.style.display = "none";
+      updateProgress(0, 20);
+    }
+
+    function checkAnswers() {
+      if (!currentQuiz.length) {
+        document.getElementById("summaryText").textContent = "먼저 문제를 생성해 주세요.";
+        return;
+      }
+
+      let correctCount = 0;
+      let index = 0;
+
+      currentQuiz.forEach(section => {
+        section.questions.forEach(item => {
+          const input = document.getElementById(`answer-${index}`).value.trim().toUpperCase();
+          const result = document.getElementById(`result-${index}`);
+          const answer = item.answer.toUpperCase();
+
+          if (input === answer) {
+            result.textContent = "✔ 정답!";
+            result.className = "correct";
+            correctCount++;
+          } else {
+            result.textContent = "✘ 오답";
+            result.className = "wrong";
+          }
+          index++;
+        });
+      });
+
+      document.getElementById("summaryText").textContent =
+        `총 20문제 중 ${correctCount}문제 정답입니다.`;
+
+      updateProgress(correctCount, 20);
+
+      document.getElementById("bonus-message").style.display =
+        correctCount === 20 ? "block" : "none";
+    }
+
+    generateQuiz();
+  </script>
+</body>
+</html>
