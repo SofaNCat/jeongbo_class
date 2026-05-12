@@ -62,9 +62,41 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 22px; /* 버튼 사이 간격 넓힘 */
+      gap: 22px;
       flex-wrap: wrap;
       margin-bottom: 18px;
+    }
+
+    .count-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f7faff;
+      padding: 10px 14px;
+      border-radius: 16px;
+      border: 1px solid #e4ecfa;
+    }
+
+    .count-box label {
+      font-size: 15px;
+      font-weight: 700;
+      color: #4a5d84;
+      white-space: nowrap;
+    }
+
+    .count-box select {
+      border: 1.5px solid #d9e3f3;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: white;
+      color: #2f3a4a;
+      outline: none;
+    }
+
+    .count-box select:focus {
+      border-color: #89aef5;
+      box-shadow: 0 0 0 4px rgba(137, 174, 245, 0.18);
     }
 
     button {
@@ -268,6 +300,11 @@
         flex: 1;
         min-width: 0;
       }
+
+      .count-box {
+        width: 100%;
+        justify-content: space-between;
+      }
     }
   </style>
 </head>
@@ -275,11 +312,21 @@
   <div class="wrap">
     <div class="hero">
       <h1>랜덤 진법 변환 퀴즈</h1>
-      <p>유형별로 5문제씩, 총 20문제가 생성됩니다.</p>
+      <p>유형별 문제 수를 정해서 문제를 생성해 보세요.</p>
     </div>
 
     <div class="floating-panel">
       <div class="panel-controls">
+        <div class="count-box">
+          <label for="questionCount">유형별 문제 수</label>
+          <select id="questionCount">
+            <option value="3">3문제</option>
+            <option value="5" selected>5문제</option>
+            <option value="7">7문제</option>
+            <option value="10">10문제</option>
+          </select>
+        </div>
+
         <button onclick="generateQuiz()">새 문제 만들기</button>
         <button class="sub-btn" onclick="checkAnswers()">정답 확인</button>
       </div>
@@ -304,6 +351,7 @@
 
   <script>
     let currentQuiz = [];
+    let currentTotalCount = 0;
 
     const sectionOrder = [
       { key: "binToDec", title: "2진수 → 10진수" },
@@ -364,12 +412,14 @@
       const quizSections = document.getElementById("quizSections");
       const summaryText = document.getElementById("summaryText");
       const bonusMessage = document.getElementById("bonus-message");
+      const questionCount = Number(document.getElementById("questionCount").value);
 
       currentQuiz = [];
+      currentTotalCount = sectionOrder.length * questionCount;
 
       sectionOrder.forEach(section => {
         const questions = [];
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < questionCount; i++) {
           questions.push(generateQuestion(section.key));
         }
         currentQuiz.push({
@@ -406,9 +456,9 @@
         `;
       }).join("");
 
-      summaryText.textContent = `총 20문제가 생성되었습니다.`;
+      summaryText.textContent = `유형별 ${questionCount}문제씩, 총 ${currentTotalCount}문제가 생성되었습니다.`;
       bonusMessage.style.display = "none";
-      updateProgress(0, 20);
+      updateProgress(0, currentTotalCount);
     }
 
     function checkAnswers() {
@@ -439,12 +489,12 @@
       });
 
       document.getElementById("summaryText").textContent =
-        `총 20문제 중 ${correctCount}문제 정답입니다.`;
+        `총 ${currentTotalCount}문제 중 ${correctCount}문제 정답입니다.`;
 
-      updateProgress(correctCount, 20);
+      updateProgress(correctCount, currentTotalCount);
 
       document.getElementById("bonus-message").style.display =
-        correctCount === 20 ? "block" : "none";
+        correctCount === currentTotalCount ? "block" : "none";
     }
 
     generateQuiz();
