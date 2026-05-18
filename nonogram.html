@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>노노그램</title>
+  <style>
+    :root {
+      --cell-size: 2.2rem;
+      --hint-bg: #f4f7ff;
+      --main-bg1: #f7fbff;
+      --main-bg2: #eef4ff;
+      --main-bg3: #fdf8ff;
+      --card-bg: rgba(255, 255, 255, 0.92);
+      --line: #dbe5f4;
+      --text-main: #2f3a4a;
+      --text-sub: #6f7c91;
+      --title: #2d3e63;
+      --hint-text: #5f7399;
+      --fill: #2f3a4a;
+      --highlight: #fff0b8;
+      --x-color: #d85b72;
+      --success-bg: #f3fbf6;
+      --success-border: #cfead8;
+      --success-text: #2c9a63;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, var(--main-bg1), var(--main-bg2) 45%, var(--main-bg3));
+      color: var(--text-main);
+      padding: 24px;
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.88);
+      border-radius: 28px;
+      padding: 30px 24px;
+      box-shadow: 0 14px 40px rgba(90, 120, 180, 0.12);
+      margin-bottom: 20px;
+      backdrop-filter: blur(8px);
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: 34px;
+      color: var(--title);
+      letter-spacing: -0.5px;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--text-sub);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .board-card {
+      background: var(--card-bg);
+      border-radius: 28px;
+      padding: 22px;
+      box-shadow: 0 12px 32px rgba(90, 120, 180, 0.10);
+      overflow-x: auto;
+    }
+
+    #nonogram {
+      border-collapse: collapse;
+      margin: 0 auto;
+      max-width: 100%;
+    }
+
+    td {
+      width: var(--cell-size);
+      height: var(--cell-size);
+      min-width: var(--cell-size);
+      border: 1px solid var(--line);
+      text-align: center;
+      vertical-align: middle;
+      user-select: none;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s ease, transform 0.12s ease;
+      background: #fff;
+    }
+
+    td:not(.hint):hover {
+      background: #f9fbff;
+    }
+
+    .hint {
+      background-color: var(--hint-bg);
+      color: var(--hint-text);
+      font-weight: 700;
+      white-space: nowrap;
+      text-align: right;
+      padding-right: 6px;
+      cursor: default;
+    }
+
+    .highlight {
+      background-color: var(--highlight) !important;
+    }
+
+    .filled {
+      background-color: var(--fill);
+    }
+
+    .x-mark {
+      color: var(--x-color);
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    #result {
+      margin-top: 18px;
+      font-size: 1.08rem;
+      font-weight: 700;
+      text-align: center;
+      color: var(--success-text);
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      border-radius: 18px;
+      padding: 14px 16px;
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .guide {
+      margin-top: 16px;
+      background: rgba(244, 247, 255, 0.9);
+      border: 1px solid #e4ecfa;
+      border-radius: 18px;
+      padding: 14px 16px;
+      color: var(--text-sub);
+      font-size: 14px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    @media (max-width: 700px) {
+      :root {
+        --cell-size: 1.9rem;
+      }
+
+      body {
+        padding: 16px;
+      }
+
+      .hero h1 {
+        font-size: 28px;
+      }
+
+      .hero p {
+        font-size: 14px;
+      }
+
+      .board-card {
+        padding: 14px;
+        border-radius: 22px;
+      }
+    }
+
+    @media (max-width: 460px) {
+      :root {
+        --cell-size: 1.55rem;
+      }
+
+      td {
+        font-size: 0.9rem;
+      }
+
+      .x-mark {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>노노그램 게임</h1>
+      <p>힌트를 보고 칸을 채워 그림을 완성해 보세요. 왼쪽 클릭은 채우기, 오른쪽 클릭은 X 표시입니다.</p>
+    </div>
+
+    <div class="board-card">
+      <table id="nonogram"></table>
+      <div id="result"></div>
+      <div class="guide">
+        마우스를 올리면 해당 행과 열의 힌트가 강조됩니다.<br>
+        한 줄이 정확히 완성되면 남은 칸은 자동으로 X 표시됩니다.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ROW = 16;
+    const COL = 13;
+
+    const solution = [
+      [0,0,0,0,1,0,0,0,0,0,0,0,0],
+      [0,1,0,0,1,1,0,1,0,0,0,0,0],
+      [0,1,1,0,0,1,0,1,1,0,0,0,0],
+      [0,0,1,0,0,1,0,0,1,0,0,0,0],
+      [0,0,1,0,1,1,0,0,1,0,0,0,0],
+      [0,1,1,0,1,0,0,1,1,0,0,0,0],
+      [0,1,0,0,0,0,0,1,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0],
+      [1,1,1,1,1,1,1,1,1,1,1,1,0],
+      [1,1,0,1,1,1,1,1,1,1,1,1,1],
+      [1,1,0,1,1,1,1,1,1,1,0,1,1],
+      [1,1,0,1,1,1,1,1,1,1,0,1,1],
+      [1,1,0,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,0,1,1,1,1,1,1,1,1,0],
+      [0,1,1,1,1,1,1,1,1,0,0,0,0],
+      [0,0,1,1,1,1,1,1,0,0,0,0,0],
+    ];
+
+    const table = document.getElementById('nonogram');
+    const resultDiv = document.getElementById('result');
+    const rowHints = [];
+    const colHints = [];
+
+    function getHintLine(arr) {
+      let res = [];
+      let count = 0;
+      for (let val of arr) {
+        if (val === 1) count++;
+        else if (count > 0) {
+          res.push(count);
+          count = 0;
+        }
+      }
+      if (count > 0) res.push(count);
+      return res.length ? res : [0];
+    }
+
+    for (let i = 0; i < ROW; i++) rowHints.push(getHintLine(solution[i]));
+    for (let j = 0; j < COL; j++) {
+      const col = [];
+      for (let i = 0; i < ROW; i++) col.push(solution[i][j]);
+      colHints.push(getHintLine(col));
+    }
+
+    const maxColHintLen = Math.max(...colHints.map(h => h.length));
+
+    for (let i = 0; i < maxColHintLen; i++) {
+      const tr = document.createElement('tr');
+      for (let j = -1; j < COL; j++) {
+        const td = document.createElement('td');
+        if (j === -1) {
+          td.classList.add('hint');
+        } else {
+          const hints = colHints[j];
+          const offset = maxColHintLen - hints.length;
+          td.innerText = (i >= offset) ? hints[i - offset] : "";
+          td.classList.add('hint');
+          td.dataset.colHint = j;
+        }
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    }
+
+    for (let i = 0; i < ROW; i++) {
+      const tr = document.createElement('tr');
+      for (let j = -1; j < COL; j++) {
+        const td = document.createElement('td');
+
+        if (j === -1) {
+          td.innerText = rowHints[i].join(' ');
+          td.classList.add('hint');
+          td.dataset.rowHint = i;
+        } else {
+          td.dataset.row = i;
+          td.dataset.col = j;
+
+          td.addEventListener('mouseenter', () => highlightHints(i, j));
+          td.addEventListener('mouseleave', clearHighlights);
+
+          td.addEventListener('click', () => {
+            if (td.innerText === "X") td.innerText = "";
+            td.classList.toggle('filled');
+            td.classList.remove('x-mark');
+            checkRowAutoX(i);
+            checkColAutoX(j);
+            checkWin();
+          });
+
+          td.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (td.classList.contains('filled')) td.classList.remove('filled');
+            td.innerText = td.innerText === "X" ? "" : "X";
+            td.classList.toggle('x-mark');
+            checkRowAutoX(i);
+            checkColAutoX(j);
+            checkWin();
+          });
+        }
+
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    }
+
+    function highlightHints(row, col) {
+      document.querySelectorAll('[data-rowHint]').forEach(td =>
+        td.classList.toggle('highlight', parseInt(td.dataset.rowHint) === row)
+      );
+      document.querySelectorAll('[data-colHint]').forEach(td =>
+        td.classList.toggle('highlight', parseInt(td.dataset.colHint) === col)
+      );
+    }
+
+    function clearHighlights() {
+      document.querySelectorAll('.highlight').forEach(td => td.classList.remove('highlight'));
+    }
+
+    function checkRowAutoX(row) {
+      const rowCells = Array.from(document.querySelectorAll(`[data-row="${row}"]`));
+      const isCorrect = rowCells.every((td, col) => {
+        const shouldBeFilled = solution[row][col] === 1;
+        const isFilled = td.classList.contains('filled');
+        return shouldBeFilled === isFilled;
+      });
+
+      if (isCorrect) {
+        rowCells.forEach(td => {
+          if (!td.classList.contains('filled') && td.innerText !== "X") {
+            td.innerText = "X";
+            td.classList.add('x-mark');
+          }
+        });
+      }
+    }
+
+    function checkColAutoX(col) {
+      const colCells = Array.from(document.querySelectorAll(`[data-col="${col}"]`));
+      const isCorrect = colCells.every((td, row) => {
+        const shouldBeFilled = solution[row][col] === 1;
+        const isFilled = td.classList.contains('filled');
+        return shouldBeFilled === isFilled;
+      });
+
+      if (isCorrect) {
+        colCells.forEach(td => {
+          if (!td.classList.contains('filled') && td.innerText !== "X") {
+            td.innerText = "X";
+            td.classList.add('x-mark');
+          }
+        });
+      }
+    }
+
+    function checkWin() {
+      for (let i = 0; i < ROW; i++) {
+        for (let j = 0; j < COL; j++) {
+          const cell = document.querySelector(`[data-row="${i}"][data-col="${j}"]`);
+          const shouldBeFilled = solution[i][j] === 1;
+          const isFilled = cell.classList.contains('filled');
+          if (shouldBeFilled !== isFilled) {
+            resultDiv.innerText = "";
+            return;
+          }
+        }
+      }
+      resultDiv.innerText = "🎉 정답을 맞췄습니다!";
+    }
+  </script>
+</body>
+</html>
