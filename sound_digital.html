@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>소리의 디지털 변환 체험실</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg1: #f7fbff;
+      --bg2: #eef4ff;
+      --bg3: #fdf8ff;
+      --card: rgba(255, 255, 255, 0.92);
+      --card-strong: rgba(255, 255, 255, 0.96);
+      --line: #dbe5f4;
+      --text: #2f3a4a;
+      --sub: #6f7c91;
+      --title: #2d3e63;
+      --accent: #5d8df2;
+      --accent-soft: #edf3ff;
+      --green: #2c9a63;
+      --red: #d85b72;
+      --orange: #d26a44;
+      --disabled: #c8d4ec;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2) 45%, var(--bg3));
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    .hero {
+      text-align: center;
+      background: rgba(255,255,255,0.88);
+      border-radius: 28px;
+      padding: 32px 24px;
+      box-shadow: 0 14px 40px rgba(90,120,180,0.12);
+      margin-bottom: 20px;
+      backdrop-filter: blur(8px);
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: 36px;
+      color: var(--title);
+      letter-spacing: -0.5px;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--sub);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .top-panel {
+      position: sticky;
+      top: 14px;
+      z-index: 30;
+      background: rgba(255,255,255,0.94);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 12px 30px rgba(90,120,180,0.12);
+      backdrop-filter: blur(8px);
+      margin-bottom: 20px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      border: none;
+      padding: 12px 18px;
+      border-radius: 16px;
+      background: #edf2fb;
+      color: #59709b;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #7aa8ff, #5d8df2);
+      color: white;
+      box-shadow: 0 8px 18px rgba(93,141,242,0.24);
+    }
+
+    .tab-btn.locked {
+      background: #eef2f8;
+      color: #9aa7bf;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .control-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .control-box {
+      background: #f9fbff;
+      border: 1px solid #e7eefb;
+      border-radius: 18px;
+      padding: 14px 16px;
+    }
+
+    .control-box h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: #4a5d84;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .control-row input[type="range"] {
+      flex: 1;
+      min-width: 130px;
+    }
+
+    .value-pill {
+      min-width: 72px;
+      text-align: center;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .main-btn, .sub-btn {
+      border: none;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .main-btn {
+      background: linear-gradient(135deg, #7aa8ff, #5d8df2);
+      color: white;
+      box-shadow: 0 8px 18px rgba(93,141,242,0.24);
+    }
+
+    .sub-btn {
+      background: #edf2fb;
+      color: #5f7399;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 26px;
+      padding: 20px;
+      box-shadow: 0 10px 28px rgba(90,120,180,0.08);
+      margin-bottom: 18px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 26px;
+      color: var(--title);
+    }
+
+    .card p.desc {
+      margin: 0 0 18px;
+      color: var(--sub);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.6fr 0.9fr;
+      gap: 18px;
+    }
+
+    .canvas-box {
+      background: var(--card-strong);
+      border: 1px solid #ebf1fb;
+      border-radius: 22px;
+      padding: 16px;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: white;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+    }
+
+    .side-box {
+      background: #f9fbff;
+      border: 1px solid #e7eefb;
+      border-radius: 20px;
+      padding: 16px;
+      height: 100%;
+    }
+
+    .side-box h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: #4a5d84;
+    }
+
+    .side-box ul {
+      margin: 0 0 14px;
+      padding-left: 18px;
+      color: var(--sub);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .answer-input,
+    .quiz-input,
+    .quant-input {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 14px;
+      outline: none;
+      background: white;
+    }
+
+    .answer-input:focus,
+    .quiz-input:focus,
+    .quant-input:focus {
+      border-color: #89aef5;
+      box-shadow: 0 0 0 4px rgba(137,174,245,0.18);
+    }
+
+    .mini-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .stat {
+      background: #f7faff;
+      border: 1px solid #e4ecfa;
+      border-radius: 16px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat .label {
+      font-size: 13px;
+      color: var(--sub);
+      margin-bottom: 6px;
+    }
+
+    .stat .value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .answer-box {
+      margin-top: 14px;
+      background: white;
+      border: 1px solid #e6edf9;
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .answer-box h4 {
+      margin: 0 0 8px;
+      color: #4a5d84;
+      font-size: 16px;
+    }
+
+    .answer-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .answer-input {
+      flex: 1;
+      min-width: 170px;
+    }
+
+    .answer-result {
+      min-height: 22px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    .correct {
+      color: var(--green);
+    }
+
+    .wrong {
+      color: var(--red);
+    }
+
+    .locked-msg {
+      margin-top: 10px;
+      color: #8a97ad;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 18px;
+      border: 1px solid #e6edf9;
+      background: white;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 860px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #edf2fb;
+      padding: 12px 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f7faff;
+      color: #59709b;
+      font-weight: 700;
+    }
+
+    .encoding-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .quiz-card {
+      background: white;
+      border: 1px solid #e8eef9;
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .quiz-card h4 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      color: #4a5d84;
+    }
+
+    .quiz-card .small {
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: var(--sub);
+      line-height: 1.6;
+    }
+
+    .bit-stream-box {
+      background: #f7faff;
+      border: 1px solid #e4ecfa;
+      border-radius: 18px;
+      padding: 16px;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #5f7399;
+      font-weight: 700;
+      font-size: 15px;
+      line-height: 1.8;
+      word-break: break-all;
+      text-align: center;
+    }
+
+    .final-box {
+      text-align: center;
+      background: #fff7f1;
+      border: 1px solid #f5d8c8;
+      color: var(--orange);
+      border-radius: 20px;
+      padding: 16px;
+      font-weight: 700;
+      display: none;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .two-col,
+      .control-grid,
+      .encoding-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .wrap {
+        padding: 20px 14px 36px;
+      }
+
+      .hero h1 {
+        font-size: 30px;
+      }
+
+      .card h2 {
+        font-size: 22px;
+      }
+
+      .mini-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .answer-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>소리의 디지털 변환 체험실</h1>
+      <p>
+        소리가 디지털 데이터로 바뀌는 과정을 직접 체험해 봅시다.<br>
+        각 단계의 이름을 맞혀야 다음 단계로 이동할 수 있습니다.
+      </p>
+    </div>
+
+    <div class="top-panel">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="sampling" data-step="1">1단계</button>
+        <button class="tab-btn locked" data-tab="quantization" data-step="2">2단계</button>
+        <button class="tab-btn locked" data-tab="encoding" data-step="3">3단계</button>
+      </div>
+
+      <div class="control-grid">
+        <div class="control-box">
+          <h3>표본 개수</h3>
+          <div class="control-row">
+            <input type="range" id="sampleCount" min="4" max="20" value="8" />
+            <div class="value-pill" id="sampleCountValue">8개</div>
+          </div>
+        </div>
+
+        <div class="control-box">
+          <h3>양자화 범위</h3>
+          <div class="control-row">
+            <div class="value-pill">0 ~ 10</div>
+            <div class="value-pill">고정</div>
+          </div>
+        </div>
+
+        <div class="control-box">
+          <h3>새 파형 만들기</h3>
+          <div class="control-row">
+            <button class="main-btn" id="newWaveBtn">새 파형 생성</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="screen active" id="sampling">
+      <div class="card">
+        <h2>1단계</h2>
+        <p class="desc">
+          원래의 부드러운 파형에서 일정한 간격으로 값을 뽑는 과정을 살펴봅시다.
+          표본 개수를 바꾸며 점의 개수와 간격 변화를 관찰해 보세요.
+        </p>
+
+        <div class="two-col">
+          <div class="canvas-box">
+            <canvas id="samplingCanvas" width="760" height="340"></canvas>
+            <div class="mini-stats">
+              <div class="stat">
+                <div class="label">표본 개수</div>
+                <div class="value" id="statSampleCount">8</div>
+              </div>
+              <div class="stat">
+                <div class="label">파형 종류</div>
+                <div class="value" id="statWaveType">A</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="side-box">
+            <h3>단계 이름 맞히기</h3>
+            <ul>
+              <li>이 단계에서 하는 일의 이름을 작성해 보세요.</li>
+              <li>정답이어야만 2단계로 넘어갈 수 있습니다.</li>
+            </ul>
+
+            <div class="answer-box" style="margin-top:0;">
+              <h4>이 단계의 이름은 무엇인가요?</h4>
+              <div class="answer-row">
+                <input class="answer-input" id="stage1Input" type="text" placeholder="답을 작성하세요">
+                <button class="sub-btn" onclick="checkStageName(1)">확인</button>
+              </div>
+              <div class="answer-result" id="stage1Result"></div>
+              <div class="locked-msg">정답을 맞히면 2단계 버튼이 활성화됩니다.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="quantization">
+      <div class="card">
+        <h2>2단계</h2>
+        <p class="desc">
+          표본값을 가장 가까운 정수 단계로 바꾸는 과정을 살펴봅시다.
+          이 사이트에서는 값을 항상 0부터 10까지의 정수 중 하나로 나타냅니다.
+        </p>
+
+        <div class="two-col">
+          <div class="canvas-box">
+            <canvas id="quantizationCanvas" width="760" height="340"></canvas>
+          </div>
+
+          <div class="side-box">
+            <h3>단계 이름 맞히기</h3>
+            <ul>
+              <li>이 단계 이름을 맞혀야 합니다.</li>
+              <li>아래 표의 근삿값 정수 입력도 모두 맞아야 3단계로 이동할 수 있습니다.</li>
+            </ul>
+
+            <div class="answer-box" style="margin-top:0;">
+              <h4>이 단계의 이름은 무엇인가요?</h4>
+              <div class="answer-row">
+                <input class="answer-input" id="stage2Input" type="text" placeholder="답을 작성하세요">
+                <button class="sub-btn" onclick="checkStageName(2)">확인</button>
+              </div>
+              <div class="answer-result" id="stage2Result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>표본값과 근삿값 정수 확인</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>번호</th>
+                <th>표본값</th>
+                <th>근삿값 정수 입력</th>
+                <th>결과</th>
+              </tr>
+            </thead>
+            <tbody id="quantTableBody"></tbody>
+          </table>
+        </div>
+        <div class="answer-box">
+          <div class="answer-row">
+            <button class="main-btn" id="checkQuantBtn">근삿값 정수 확인</button>
+          </div>
+          <div class="answer-result" id="quantCheckResult"></div>
+          <div class="locked-msg">단계 이름과 근삿값 정수를 모두 맞혀야 3단계 버튼이 활성화됩니다.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="encoding">
+      <div class="card">
+        <h2>3단계</h2>
+        <p class="desc">
+          정수로 바뀐 값을 2진수로 표현해 봅시다. 각 칸을 직접 입력한 뒤 정답을 확인해 보세요.
+          모든 칸을 맞혔을 때만 전체 비트열이 자동으로 완성됩니다.
+        </p>
+
+        <div class="answer-box" style="margin-top:0;">
+          <h4>이 단계의 이름은 무엇인가요?</h4>
+          <div class="answer-row">
+            <input class="answer-input" id="stage3Input" type="text" placeholder="답을 작성하세요">
+            <button class="sub-btn" onclick="checkStageName(3)">확인</button>
+          </div>
+          <div class="answer-result" id="stage3Result"></div>
+        </div>
+
+        <div class="answer-box" style="margin-top:14px;">
+          <div class="control-row">
+            <button class="main-btn" id="checkEncodingBtn">정답 확인</button>
+            <button class="sub-btn" id="resetEncodingBtn">다시 하기</button>
+          </div>
+          <div class="final-box" id="finalMessage">🎉 모든 부호화를 맞혔어요!</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>부호화 문제</h2>
+        <div class="encoding-grid" id="encodingGrid"></div>
+      </div>
+
+      <div class="card">
+        <h2>전체 비트열</h2>
+        <p class="desc">모든 입력이 맞았을 때만 아래에 전체 비트열이 자동으로 나타납니다.</p>
+        <div class="bit-stream-box" id="fullBitStream">아직 완성되지 않았습니다.</div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const state = {
+      sampleCount: 8,
+      analogPoints: [],
+      samples: [],
+      quantized: [],
+      waveParams: null,
+      encodingQuizCount: 8,
+      unlockedStep: 1,
+      passedStageName: { 1: false, 2: false, 3: false },
+      passedQuant: false
+    };
+
+    const STAGE_ANSWERS = {
+      1: ["표본화"],
+      2: ["양자화"],
+      3: ["부호화"]
+    };
+
+    const sampleSlider = document.getElementById("sampleCount");
+    const sampleCountValue = document.getElementById("sampleCountValue");
+    const statSampleCount = document.getElementById("statSampleCount");
+    const statWaveType = document.getElementById("statWaveType");
+
+    const samplingCanvas = document.getElementById("samplingCanvas");
+    const quantizationCanvas = document.getElementById("quantizationCanvas");
+    const samplingCtx = samplingCanvas.getContext("2d");
+    const quantCtx = quantizationCanvas.getContext("2d");
+
+    const quantTableBody = document.getElementById("quantTableBody");
+    const encodingGrid = document.getElementById("encodingGrid");
+    const fullBitStream = document.getElementById("fullBitStream");
+    const finalMessage = document.getElementById("finalMessage");
+
+    const tabs = document.querySelectorAll(".tab-btn");
+    const screens = document.querySelectorAll(".screen");
+
+    tabs.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const step = Number(btn.dataset.step);
+        if (step > state.unlockedStep) return;
+        tabs.forEach(b => b.classList.remove("active"));
+        screens.forEach(s => s.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    function updateTabLocks() {
+      tabs.forEach(btn => {
+        const step = Number(btn.dataset.step);
+        btn.classList.remove("locked");
+        if (step > state.unlockedStep) {
+          btn.classList.add("locked");
+        }
+      });
+    }
+
+    function unlockStep(step) {
+      if (step > state.unlockedStep) {
+        state.unlockedStep = step;
+        updateTabLocks();
+      }
+    }
+
+    function moveToStep(step) {
+      if (step > state.unlockedStep) return;
+      const targetBtn = document.querySelector(`.tab-btn[data-step="${step}"]`);
+      if (targetBtn) targetBtn.click();
+    }
+
+    function randomRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function createRandomWave() {
+      const typeIndex = Math.floor(Math.random() * 3);
+      state.waveParams = {
+        type: ["A", "B", "C"][typeIndex],
+        a1: randomRange(0.7, 1.2),
+        a2: randomRange(0.2, 0.6),
+        a3: randomRange(0.1, 0.35),
+        f1: randomRange(0.8, 1.4),
+        f2: randomRange(2.0, 4.5),
+        f3: randomRange(5.0, 8.0),
+        p1: randomRange(0, Math.PI * 2),
+        p2: randomRange(0, Math.PI * 2),
+        p3: randomRange(0, Math.PI * 2)
+      };
+    }
+
+    function analogFunction(t) {
+      const p = state.waveParams;
+      let y =
+        p.a1 * Math.sin((Math.PI * 2) * p.f1 * t + p.p1) +
+        p.a2 * Math.sin((Math.PI * 2) * p.f2 * t + p.p2) +
+        p.a3 * Math.cos((Math.PI * 2) * p.f3 * t + p.p3);
+
+      y = Math.max(-1.6, Math.min(1.6, y));
+      const normalized = (y + 1.6) / 3.2;
+      return normalized * 10;
+    }
+
+    function toBinary(value) {
+      return Number(value).toString(2).padStart(4, "0");
+    }
+
+    function updateState() {
+      state.sampleCount = Number(sampleSlider.value);
+      sampleCountValue.textContent = `${state.sampleCount}개`;
+
+      state.analogPoints = [];
+      for (let i = 0; i <= 300; i++) {
+        const t = i / 300;
+        state.analogPoints.push({ t, y: analogFunction(t) });
+      }
+
+      state.samples = [];
+      for (let i = 0; i < state.sampleCount; i++) {
+        const t = i / (state.sampleCount - 1 || 1);
+        const y = analogFunction(t);
+        state.samples.push({ t, y });
+      }
+
+      state.quantized = state.samples.map((sample) => {
+        const qValue = Math.max(0, Math.min(10, Math.round(sample.y)));
+        return {
+          ...sample,
+          qValue,
+          binary: toBinary(qValue)
+        };
+      });
+
+      statSampleCount.textContent = String(state.sampleCount);
+      statWaveType.textContent = state.waveParams.type;
+
+      renderSampling();
+      renderQuantization();
+      renderQuantTable();
+      renderEncodingQuiz();
+    }
+
+    function drawAxes(ctx, width, height, left, top, innerW, innerH) {
+      ctx.strokeStyle = "#dbe5f4";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(left, top);
+      ctx.lineTo(left, top + innerH);
+      ctx.lineTo(left + innerW, top + innerH);
+      ctx.stroke();
+
+      for (let i = 0; i <= 10; i++) {
+        const y = top + (1 - i / 10) * innerH;
+        ctx.strokeStyle = "#eef3fb";
+        ctx.beginPath();
+        ctx.moveTo(left, y);
+        ctx.lineTo(left + innerW, y);
+        ctx.stroke();
+      }
+    }
+
+    function renderSampling() {
+      const ctx = samplingCtx;
+      const width = samplingCanvas.width;
+      const height = samplingCanvas.height;
+      const left = 56;
+      const top = 24;
+      const innerW = width - 84;
+      const innerH = height - 58;
+
+      ctx.clearRect(0, 0, width, height);
+      drawAxes(ctx, width, height, left, top, innerW, innerH);
+
+      ctx.strokeStyle = "#95b4f5";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      state.analogPoints.forEach((p, idx) => {
+        const x = left + p.t * innerW;
+        const y = top + (1 - p.y / 10) * innerH;
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      ctx.fillStyle = "#5d8df2";
+      state.samples.forEach((p) => {
+        const x = left + p.t * innerW;
+        const y = top + (1 - p.y / 10) * innerH;
+
+        ctx.strokeStyle = "rgba(93,141,242,0.18)";
+        ctx.beginPath();
+        ctx.moveTo(x, top + innerH);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.fillStyle = "#6f7c91";
+      ctx.font = "13px Arial";
+      ctx.fillText("값", 22, 24);
+      ctx.fillText("시간", width - 36, height - 12);
+    }
+
+    function renderQuantization() {
+      const ctx = quantCtx;
+      const width = quantizationCanvas.width;
+      const height = quantizationCanvas.height;
+      const left = 68;
+      const top = 24;
+      const innerW = width - 96;
+      const innerH = height - 58;
+
+      ctx.clearRect(0, 0, width, height);
+      drawAxes(ctx, width, height, left, top, innerW, innerH);
+
+      for (let i = 1; i <= 10; i++) {
+        const y = top + (1 - i / 10) * innerH;
+
+        ctx.strokeStyle = "#ffd9c8";
+        ctx.beginPath();
+        ctx.moveTo(left, y);
+        ctx.lineTo(left + innerW, y);
+        ctx.stroke();
+
+        ctx.fillStyle = "#d26a44";
+        ctx.font = "12px Arial";
+        ctx.fillText(String(i), 38, y + 4);
+      }
+
+      ctx.fillStyle = "#d26a44";
+      ctx.fillText("0", 38, top + innerH + 4);
+
+      ctx.strokeStyle = "#95b4f5";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      state.samples.forEach((p, idx) => {
+        const x = left + p.t * innerW;
+        const y = top + (1 - p.y / 10) * innerH;
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      state.quantized.forEach((p) => {
+        const x = left + p.t * innerW;
+        const sy = top + (1 - p.y / 10) * innerH;
+        const qy = top + (1 - p.qValue / 10) * innerH;
+
+        ctx.fillStyle = "#5d8df2";
+        ctx.beginPath();
+        ctx.arc(x, sy, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(210,106,68,0.38)";
+        ctx.beginPath();
+        ctx.moveTo(x, sy);
+        ctx.lineTo(x, qy);
+        ctx.stroke();
+
+        ctx.fillStyle = "#d26a44";
+        ctx.beginPath();
+        ctx.arc(x, qy, 5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.fillStyle = "#6f7c91";
+      ctx.font = "13px Arial";
+      ctx.fillText("파란색: 표본값", 16, 18);
+      ctx.fillText("주황색: 근삿값 정수", 120, 18);
+    }
+
+    function renderQuantTable() {
+      quantTableBody.innerHTML = state.quantized.map((item, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${item.y.toFixed(1)}</td>
+          <td>
+            <input class="quant-input" id="quantInput-${idx}" type="text" placeholder="정수 입력" />
+          </td>
+          <td id="quantResult-${idx}"></td>
+        </tr>
+      `).join("");
+
+      document.getElementById("quantCheckResult").textContent = "";
+      document.getElementById("quantCheckResult").className = "answer-result";
+      state.passedQuant = false;
+      if (state.unlockedStep > 2) {
+        state.unlockedStep = 2;
+        updateTabLocks();
+      }
+    }
+
+    function checkQuantAnswers() {
+      let allCorrect = true;
+
+      state.quantized.forEach((item, idx) => {
+        const input = document.getElementById(`quantInput-${idx}`);
+        const result = document.getElementById(`quantResult-${idx}`);
+        const user = input.value.trim();
+
+        if (user === String(item.qValue)) {
+          result.textContent = "정답";
+          result.className = "correct";
+        } else {
+          result.textContent = "오답";
+          result.className = "wrong";
+          allCorrect = false;
+        }
+      });
+
+      const summary = document.getElementById("quantCheckResult");
+      if (allCorrect) {
+        summary.textContent = "근삿값 정수를 모두 맞혔습니다 ✅";
+        summary.className = "answer-result correct";
+        state.passedQuant = true;
+        tryUnlockStep3();
+      } else {
+        summary.textContent = "아직 틀린 근삿값 정수가 있습니다 ❌";
+        summary.className = "answer-result wrong";
+        state.passedQuant = false;
+      }
+    }
+
+    function renderEncodingQuiz() {
+      finalMessage.style.display = "none";
+      fullBitStream.textContent = "아직 완성되지 않았습니다.";
+
+      const quizItems = state.quantized.slice(0, Math.min(state.encodingQuizCount, state.quantized.length));
+
+      encodingGrid.innerHTML = quizItems.map((item, idx) => `
+        <div class="quiz-card">
+          <h4>표본 ${idx + 1}</h4>
+          <p class="small">
+            근삿값 정수: <strong>${item.qValue}</strong><br>
+            이 값을 4비트 2진수로 써 보세요.
+          </p>
+          <input class="quiz-input" id="binaryInput-${idx}" type="text" placeholder="4비트 이진수 입력" />
+          <div class="answer-result" id="binaryResult-${idx}"></div>
+        </div>
+      `).join("");
+    }
+
+    function checkEncodingAnswers() {
+      const quizItems = state.quantized.slice(0, Math.min(state.encodingQuizCount, state.quantized.length));
+      let allCorrect = true;
+
+      quizItems.forEach((item, idx) => {
+        const input = document.getElementById(`binaryInput-${idx}`);
+        const result = document.getElementById(`binaryResult-${idx}`);
+        const user = input.value.trim();
+        const answer = item.binary;
+
+        if (user === answer) {
+          result.textContent = "정답입니다 ✅";
+          result.className = "answer-result correct";
+        } else {
+          result.textContent = "오답입니다 ❌";
+          result.className = "answer-result wrong";
+          allCorrect = false;
+        }
+      });
+
+      if (allCorrect) {
+        finalMessage.style.display = "block";
+        fullBitStream.textContent = quizItems.map(v => v.binary).join(" ");
+      } else {
+        finalMessage.style.display = "none";
+        fullBitStream.textContent = "아직 완성되지 않았습니다.";
+      }
+    }
+
+    function resetEncodingAnswers() {
+      const inputs = document.querySelectorAll(".quiz-input");
+      const results = document.querySelectorAll("#encodingGrid .answer-result");
+      inputs.forEach(input => input.value = "");
+      results.forEach(r => {
+        r.textContent = "";
+        r.className = "answer-result";
+      });
+      finalMessage.style.display = "none";
+      fullBitStream.textContent = "아직 완성되지 않았습니다.";
+    }
+
+    function normalizeAnswer(str) {
+      return String(str).trim().replace(/\s/g, "");
+    }
+
+    function checkStageName(stageNum) {
+      const input = document.getElementById(`stage${stageNum}Input`);
+      const result = document.getElementById(`stage${stageNum}Result`);
+      const value = normalizeAnswer(input.value);
+      const answers = STAGE_ANSWERS[stageNum].map(normalizeAnswer);
+
+      if (answers.includes(value)) {
+        result.textContent = "정답입니다 ✅";
+        result.className = "answer-result correct";
+        state.passedStageName[stageNum] = true;
+
+        if (stageNum === 1) {
+          unlockStep(2);
+          moveToStep(2);
+        } else if (stageNum === 2) {
+          tryUnlockStep3();
+        }
+      } else {
+        result.textContent = "오답입니다 ❌";
+        result.className = "answer-result wrong";
+        state.passedStageName[stageNum] = false;
+      }
+    }
+
+    function tryUnlockStep3() {
+      if (state.passedStageName[2] && state.passedQuant) {
+        unlockStep(3);
+        moveToStep(3);
+      }
+    }
+
+    function regenerateWave() {
+      createRandomWave();
+      updateState();
+      resetEncodingAnswers();
+
+      state.passedStageName = { 1: false, 2: false, 3: false };
+      state.passedQuant = false;
+      state.unlockedStep = 1;
+      updateTabLocks();
+      moveToStep(1);
+
+      [1,2,3].forEach(n => {
+        const input = document.getElementById(`stage${n}Input`);
+        const r = document.getElementById(`stage${n}Result`);
+        if (input) input.value = "";
+        if (r) {
+          r.textContent = "";
+          r.className = "answer-result";
+        }
+      });
+    }
+
+    sampleSlider.addEventListener("input", updateState);
+    document.getElementById("checkEncodingBtn").addEventListener("click", checkEncodingAnswers);
+    document.getElementById("resetEncodingBtn").addEventListener("click", resetEncodingAnswers);
+    document.getElementById("newWaveBtn").addEventListener("click", regenerateWave);
+    document.getElementById("checkQuantBtn").addEventListener("click", checkQuantAnswers);
+
+    createRandomWave();
+    updateState();
+    updateTabLocks();
+  </script>
+</body>
+</html>
