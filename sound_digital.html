@@ -468,7 +468,7 @@
 
       <div class="control-grid">
         <div class="control-box">
-          <h3>표본 개수</h3>
+          <h3>나누는 개수</h3>
           <div class="control-row">
             <input type="range" id="sampleCount" min="4" max="20" value="8" />
             <div class="value-pill" id="sampleCountValue">8개</div>
@@ -476,7 +476,7 @@
         </div>
 
         <div class="control-box">
-          <h3>양자화 범위</h3>
+          <h3>정수 범위</h3>
           <div class="control-row">
             <div class="value-pill">0 ~ 10</div>
             <div class="value-pill">고정</div>
@@ -496,8 +496,8 @@
       <div class="card">
         <h2>1단계</h2>
         <p class="desc">
-          원래의 부드러운 파형에서 일정한 간격으로 값을 뽑는 과정을 살펴봅시다.
-          표본 개수를 바꾸며 점의 개수와 간격 변화를 관찰해 보세요.
+          원래의 부드러운 파형을 일정한 구간으로 나누어 값을 뽑는 과정을 살펴봅시다.
+          나누는 개수를 바꾸며 점의 개수와 간격 변화를 관찰해 보세요.
         </p>
 
         <div class="two-col">
@@ -505,7 +505,7 @@
             <canvas id="samplingCanvas" width="760" height="340"></canvas>
             <div class="mini-stats">
               <div class="stat">
-                <div class="label">표본 개수</div>
+                <div class="label">나누는 개수</div>
                 <div class="value" id="statSampleCount">8</div>
               </div>
             </div>
@@ -536,7 +536,7 @@
       <div class="card">
         <h2>2단계</h2>
         <p class="desc">
-          표본값을 가장 가까운 정수 단계로 바꾸는 과정을 살펴봅시다.
+          뽑아낸 값을 가장 가까운 정수 단계로 바꾸는 과정을 살펴봅시다.
           이 사이트에서는 값을 항상 0부터 10까지의 정수 중 하나로 나타냅니다.
         </p>
 
@@ -635,7 +635,6 @@
       samples: [],
       quantized: [],
       waveParams: null,
-      encodingQuizCount: 8,
       unlockedStep: 1,
       passedStageName: { 1: false, 2: false, 3: false },
       passedQuant: false
@@ -728,6 +727,10 @@
       return normalized * 10;
     }
 
+    function roundHalfUp(value) {
+      return Math.floor(value + 0.5);
+    }
+
     function toBinary(value) {
       return Number(value).toString(2).padStart(4, "0");
     }
@@ -750,7 +753,7 @@
       }
 
       state.quantized = state.samples.map((sample) => {
-        const qValue = Math.max(0, Math.min(10, Math.round(sample.y)));
+        const qValue = Math.max(0, Math.min(10, roundHalfUp(sample.y)));
         return {
           ...sample,
           qValue,
@@ -954,7 +957,7 @@
       finalMessage.style.display = "none";
       fullBitStream.textContent = "아직 완성되지 않았습니다.";
 
-      const quizItems = state.quantized.slice(0, Math.min(state.encodingQuizCount, state.quantized.length));
+      const quizItems = state.quantized;
 
       encodingGrid.innerHTML = quizItems.map((item, idx) => `
         <div class="quiz-card">
@@ -970,7 +973,7 @@
     }
 
     function updateEncodingCompletion() {
-      const quizItems = state.quantized.slice(0, Math.min(state.encodingQuizCount, state.quantized.length));
+      const quizItems = state.quantized;
       const passedStage3Name = state.passedStageName[3];
 
       let allBinaryCorrect = true;
@@ -993,7 +996,7 @@
     }
 
     function checkEncodingAnswers() {
-      const quizItems = state.quantized.slice(0, Math.min(state.encodingQuizCount, state.quantized.length));
+      const quizItems = state.quantized;
 
       quizItems.forEach((item, idx) => {
         const input = document.getElementById(`binaryInput-${idx}`);
