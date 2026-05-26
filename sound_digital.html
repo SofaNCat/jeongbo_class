@@ -468,7 +468,7 @@
 
       <div class="control-grid">
         <div class="control-box">
-          <h3>나누는 개수</h3>
+          <h3>표본 개수</h3>
           <div class="control-row">
             <input type="range" id="sampleCount" min="4" max="20" value="8" />
             <div class="value-pill" id="sampleCountValue">8개</div>
@@ -476,7 +476,7 @@
         </div>
 
         <div class="control-box">
-          <h3>정수 범위</h3>
+          <h3>양자화 범위</h3>
           <div class="control-row">
             <div class="value-pill">0 ~ 10</div>
             <div class="value-pill">고정</div>
@@ -969,9 +969,31 @@
       `).join("");
     }
 
+    function updateEncodingCompletion() {
+      const quizItems = state.quantized.slice(0, Math.min(state.encodingQuizCount, state.quantized.length));
+      const passedStage3Name = state.passedStageName[3];
+
+      let allBinaryCorrect = true;
+
+      quizItems.forEach((item, idx) => {
+        const input = document.getElementById(`binaryInput-${idx}`);
+        const user = input.value.trim();
+        if (user !== item.binary) {
+          allBinaryCorrect = false;
+        }
+      });
+
+      if (allBinaryCorrect && passedStage3Name) {
+        finalMessage.style.display = "block";
+        fullBitStream.textContent = quizItems.map(v => v.binary).join(" ");
+      } else {
+        finalMessage.style.display = "none";
+        fullBitStream.textContent = "아직 완성되지 않았습니다.";
+      }
+    }
+
     function checkEncodingAnswers() {
       const quizItems = state.quantized.slice(0, Math.min(state.encodingQuizCount, state.quantized.length));
-      let allBinaryCorrect = true;
 
       quizItems.forEach((item, idx) => {
         const input = document.getElementById(`binaryInput-${idx}`);
@@ -985,19 +1007,10 @@
         } else {
           result.textContent = "오답입니다 ❌";
           result.className = "answer-result wrong";
-          allBinaryCorrect = false;
         }
       });
 
-      const passedStage3Name = state.passedStageName[3];
-
-      if (allBinaryCorrect && passedStage3Name) {
-        finalMessage.style.display = "block";
-        fullBitStream.textContent = quizItems.map(v => v.binary).join(" ");
-      } else {
-        finalMessage.style.display = "none";
-        fullBitStream.textContent = "아직 완성되지 않았습니다.";
-      }
+      updateEncodingCompletion();
     }
 
     function resetEncodingAnswers() {
@@ -1032,11 +1045,17 @@
           moveToStep(2);
         } else if (stageNum === 2) {
           tryUnlockStep3();
+        } else if (stageNum === 3) {
+          updateEncodingCompletion();
         }
       } else {
         result.textContent = "오답입니다 ❌";
         result.className = "answer-result wrong";
         state.passedStageName[stageNum] = false;
+
+        if (stageNum === 3) {
+          updateEncodingCompletion();
+        }
       }
     }
 
