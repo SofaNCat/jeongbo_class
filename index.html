@@ -61,6 +61,19 @@
       gap: 12px;
     }
 
+    .site-button-0 {
+      width: 100%;
+      padding: 14px;
+      font-size: 17px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #B0B0B0, #C7C7C7);
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 6px 15px rgba(74, 144, 226, 0.25);
+    }
+
     .site-button-5 {
       width: 100%;
       padding: 14px;
@@ -99,6 +112,13 @@
     <div class="sub-text">단원별로 필요한 사이트를 눌러보세요</div>
 
     <div class="unit">
+      <div class="unit-title">0. 게임</div>
+      <div class="button-group">
+        <button class="site-button-0" onclick="location.href='binrun.html'">1. BinRun</button>
+      </div>
+    </div>
+
+    <div class="unit">
       <div class="unit-title">V. 디지털 문화</div>
       <div class="button-group">
         <button class="site-button-5" onclick="location.href='password_game.html'">1. 비밀번호 게임</button>
@@ -108,7 +128,6 @@
     <div class="unit">
       <div class="unit-title">II. 데이터</div>
       <div class="button-group">
-        <button class="site-button-2" onclick="location.href='binrun.html'">0. BinRun</button>
         <button class="site-button-2" onclick="location.href='unicode_myname.html'">1. 내 이름을 유니코드로</button>
         <button class="site-button-2" onclick="location.href='random_digit.html'">2. 랜덤 진법 변환 문제지</button>
         <button class="site-button-2" onclick="location.href='nonogram.html'">3. 노노그램 게임</button>
