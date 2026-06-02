@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>BinRun</title>
   <style>
     :root {
@@ -1979,6 +1979,248 @@
           linear-gradient(180deg, #ffe9e7 0%, #fff5e7 48%, #ffdeda 100%);
       }
     }
+    /* fold/mobile viewport fit */
+    @media (max-width: 920px), (pointer: coarse) {
+      html,
+      body {
+        width: 100%;
+        min-height: 100dvh;
+        height: 100dvh;
+        overflow: hidden;
+      }
+
+      body {
+        padding: max(6px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+        align-items: stretch;
+      }
+
+      .app {
+        width: 100%;
+        height: calc(100dvh - max(12px, env(safe-area-inset-top)) - max(8px, env(safe-area-inset-bottom)));
+      }
+
+      .panel {
+        height: 100%;
+        min-height: 0;
+      }
+
+      .title-bar {
+        padding: 7px 10px 6px;
+      }
+
+      .logo {
+        width: 36px;
+        height: 36px;
+        font-size: 13px;
+        box-shadow: 3px 3px 0 var(--ink);
+      }
+
+      .game-title {
+        font-size: clamp(20px, 4.8vw, 26px);
+      }
+
+      .top-action-buttons {
+        gap: 6px;
+      }
+
+      .hud {
+        padding: 7px 9px;
+        gap: 7px;
+        flex: 0 0 auto;
+      }
+
+      .card {
+        padding: 7px 9px;
+      }
+
+      .target-row {
+        gap: 8px;
+      }
+
+      .target-num {
+        font-size: clamp(34px, 8.5vw, 48px);
+        line-height: .95;
+      }
+
+      .target-stats {
+        gap: 6px;
+      }
+
+      .stat-item {
+        gap: 3px;
+      }
+
+      .score-inline,
+      .mode-inline {
+        padding: 5px 8px;
+        min-width: 42px;
+        font-size: 15px;
+      }
+
+      .bits {
+        padding-bottom: 2px;
+        gap: 6px;
+      }
+
+      .bit-box {
+        min-width: 54px;
+        padding: 5px 7px;
+      }
+
+      .bit-place {
+        font-size: 11px;
+      }
+
+      .bit-value {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+      }
+
+      .game-wrap {
+        flex: 1 1 0;
+        min-height: 0 !important;
+        height: auto;
+      }
+
+      .game-wrap::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .notebook-margin {
+        left: 50px;
+      }
+
+      .top-rank-badge {
+        top: 8px;
+        right: 8px;
+        max-width: min(58vw, 360px);
+        font-size: 11px;
+        padding: 5px 8px;
+      }
+
+      .ground {
+        bottom: clamp(44px, 7.2dvh, 60px);
+      }
+
+      .runner-life {
+        bottom: clamp(8px, 1.8dvh, 18px);
+        font-size: clamp(17px, 3.8vw, 22px);
+      }
+
+      .game-wrap .runner,
+      .game-wrap .runner.emoji-runner {
+        left: clamp(72px, 15vw, 110px) !important;
+        bottom: clamp(46px, 7.4dvh, 62px) !important;
+        width: clamp(46px, 10vw, 58px) !important;
+        height: clamp(46px, 10vw, 58px) !important;
+      }
+
+      .game-wrap .runner.jump,
+      .game-wrap .runner.emoji-runner.jump {
+        bottom: clamp(126px, 20dvh, 158px) !important;
+      }
+
+      .game-wrap .runner-face {
+        font-size: clamp(38px, 9vw, 54px) !important;
+      }
+
+      .coin-wrap {
+        height: 220px;
+      }
+
+      .coin {
+        bottom: clamp(130px, 20dvh, 162px);
+      }
+
+      .place-tag {
+        bottom: clamp(184px, 29dvh, 216px);
+      }
+
+      .message {
+        top: 46%;
+      }
+
+      .overlay {
+        padding: 10px;
+      }
+
+      .start-box,
+      .gameover-box {
+        max-height: calc(100dvh - 28px);
+        overflow: auto;
+      }
+    }
+
+    @media (max-width: 920px) and (max-height: 760px), (pointer: coarse) and (max-height: 760px) {
+      .title-bar {
+        padding: 5px 8px;
+      }
+
+      .hud {
+        padding: 5px 8px;
+        gap: 5px;
+      }
+
+      .card {
+        padding: 5px 8px;
+      }
+
+      .target-num {
+        font-size: clamp(30px, 7.6vw, 42px);
+      }
+
+      .bit-box {
+        min-width: 50px;
+        padding: 4px 6px;
+      }
+
+      .bit-value {
+        width: 25px;
+        height: 25px;
+        font-size: 15px;
+      }
+
+      .logo {
+        width: 32px;
+        height: 32px;
+      }
+
+      .icon-btn {
+        width: 36px;
+        height: 32px;
+        min-width: 36px;
+      }
+
+      .ground {
+        bottom: 42px;
+      }
+
+      .runner-life {
+        bottom: 4px;
+      }
+
+      .game-wrap .runner,
+      .game-wrap .runner.emoji-runner {
+        bottom: 44px !important;
+      }
+
+      .game-wrap .runner.jump,
+      .game-wrap .runner.emoji-runner.jump {
+        bottom: clamp(112px, 18dvh, 142px) !important;
+      }
+
+      .coin {
+        bottom: clamp(116px, 18dvh, 148px);
+      }
+
+      .place-tag {
+        bottom: clamp(166px, 26dvh, 196px);
+      }
+    }
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
@@ -2318,7 +2560,8 @@
     const wrongFaceInput = document.getElementById("wrongFaceInput");
 
     let score = 0;
-    let bestScore = Number(localStorage.getItem("binaryRunnerBestScore") || 0);
+    const BEST_SCORE_PREFIX = "binaryRunnerBestScore";
+    let bestScore = 0;
     let maxLife = 3;
     let life = maxLife;
 
@@ -2470,18 +2713,36 @@
       }, time);
     }
 
-    function renderBestScore() {
+    function getCurrentBestModeKey() {
+      if (isPlaying) return getModeKeyFromLabel(playingModeLabel);
+      return hardModeToggle.checked ? "hard" : "easy";
+    }
+
+    function getBestScoreKey(modeKey = getCurrentBestModeKey()) {
+      return `${BEST_SCORE_PREFIX}_${modeKey}`;
+    }
+
+    function getStoredBestScore(modeKey = getCurrentBestModeKey()) {
+      return Number(localStorage.getItem(getBestScoreKey(modeKey)) || 0);
+    }
+
+    function renderBestScore(modeKey = getCurrentBestModeKey()) {
+      bestScore = getStoredBestScore(modeKey);
+
       if (bestScoreEl) {
         bestScoreEl.textContent = bestScore;
       }
     }
 
-    function updateBestScore() {
+    function updateBestScore(modeKey = getCurrentBestModeKey()) {
+      bestScore = getStoredBestScore(modeKey);
+
       if (score > bestScore) {
         bestScore = score;
-        localStorage.setItem("binaryRunnerBestScore", String(bestScore));
+        localStorage.setItem(getBestScoreKey(modeKey), String(bestScore));
       }
-      renderBestScore();
+
+      renderBestScore(modeKey);
     }
 
     function getPlaceExpression(num) {
@@ -2643,7 +2904,7 @@
 
         const placeEl = document.createElement("div");
         placeEl.className = "bit-place";
-        placeEl.textContent = `${place}`;
+        placeEl.textContent = `${hardMode ? "?" : place}`;
 
         const valueEl = document.createElement("div");
         valueEl.className = "bit-value";
@@ -2696,22 +2957,18 @@
       coins = [];
     }
 
-    function createCoin(place, x, roundNumber, isHeartCoin = false) {
+    function createCoin(place, x, roundNumber) {
       const coinWrap = document.createElement("div");
       coinWrap.className = "coin-wrap";
       coinWrap.style.left = `${x}px`;
 
-      if (isHeartCoin) {
-        coinWrap.innerHTML = `
-          <div class="place-tag heart-tag">회복</div>
-          <div class="coin red-heart-coin">❤️</div>
-        `;
-      } else {
-        coinWrap.innerHTML = `
-          <div class="place-tag">${roundNumber} : ${place}의 자리</div>
-          <div class="coin">${place}</div>
-        `;
-      }
+      const visiblePlace = hardMode ? "?" : place;
+      const visibleTag = hardMode ? "?" : `${roundNumber} : ${place}의 자리`;
+
+      coinWrap.innerHTML = `
+        <div class="place-tag">${visibleTag}</div>
+        <div class="coin">${visiblePlace}</div>
+      `;
 
       game.appendChild(coinWrap);
 
@@ -2720,7 +2977,7 @@
         x,
         place,
         roundNumber,
-        isHeartCoin,
+        isHeartCoin: false,
         judged: false
       });
     }
@@ -3393,7 +3650,7 @@
         }
         speed = typeof getCurrentSpeed === "function" ? getCurrentSpeed() : speed + 5;
         scoreEl.textContent = score;
-        updateBestScore();
+        updateBestScore(getModeKeyFromLabel(finishedModeLabel));
         showMessage(`정답! ${targetNumber} = ${answer}₂`, 950);
 
         setTimeout(() => {
@@ -3427,7 +3684,7 @@
           lastFinishedScore = score;
           scoreAlreadySaved = false;
 updateModeLabel();
-          updateBestScore();
+          updateBestScore(getModeKeyFromLabel(finishedModeLabel));
 
           showMessage(`게임 종료! 정답은 ${answer}₂`, 999999);
           startOverlay.classList.remove("hidden");
@@ -3562,6 +3819,7 @@ updateModeLabel();
       }
 
       if (!isPlaying) {
+        renderBestScore(selectedHardMode ? "hard" : "easy");
         updateTopRankBadge(selectedHardMode ? "hard" : "easy");
       }
 
