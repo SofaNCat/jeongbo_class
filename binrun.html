@@ -1,0 +1,3557 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BinRun</title>
+  <style>
+    :root {
+      --ink: #1f1f1f;
+      --paper: #fbfbf7;
+      --line: #d7d7d2;
+      --soft: #f2f2ee;
+      --muted: #777;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      font-family: "Pretendard", "Apple SD Gothic Neo", system-ui, sans-serif;
+      color: var(--ink);
+      background: #e9e9e4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+    }
+
+    .app {
+      width: min(1240px, 100%);
+      height: calc(100vh - 20px);
+      display: flex;
+      align-items: stretch;
+    }
+
+    .top {
+      display: none;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 23px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      border: 3px solid var(--ink);
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      background: white;
+      font-size: 15px;
+      font-weight: 1000;
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+
+    .score-board {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      border: 2px solid var(--ink);
+      background: white;
+      border-radius: 999px;
+      padding: 8px 13px;
+      font-size: 14px;
+      font-weight: 900;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .life-board {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      border: 2px solid var(--ink);
+      background: white;
+      border-radius: 999px;
+      padding: 4px 9px;
+      box-shadow: 3px 3px 0 var(--ink);
+      min-height: 30px;
+      font-size: 18px;
+      line-height: 1;
+      letter-spacing: -1px;
+      white-space: nowrap;
+    }
+
+    .heart {
+      display: inline-block;
+      filter: drop-shadow(1px 1px 0 var(--ink));
+    }
+
+    .panel {
+      border: 3px solid var(--ink);
+      background: var(--paper);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 7px 7px 0 var(--ink);
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+    }
+
+    .title-bar {
+      padding: 10px 16px 8px;
+      border-bottom: 3px solid var(--ink);
+      background: white;
+      flex: 0 0 auto;
+    }
+
+    .title-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .title-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .character-config-btn {
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      background: white;
+      padding: 8px 13px;
+      font-size: 14px;
+      font-weight: 1000;
+      box-shadow: 3px 3px 0 var(--ink);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .character-config-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .game-title {
+      font-size: 24px;
+      font-weight: 1000;
+      letter-spacing: -0.6px;
+    }
+
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+      gap: 14px;
+      padding: 9px 14px;
+      border-bottom: 3px solid var(--ink);
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          var(--paper) 0px,
+          var(--paper) 27px,
+          var(--line) 28px,
+          var(--paper) 29px
+        );
+      flex: 0 0 auto;
+    }
+
+    .card {
+      background: rgba(255,255,255,.9);
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-shadow: 3px 3px 0 var(--ink);
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 5px;
+    }
+
+    .target-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .target-stats {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      text-align: right;
+      flex: 0 0 auto;
+      flex-wrap: nowrap;
+    }
+
+    .stat-item .label {
+      margin-bottom: 7px;
+    }
+
+    .score-inline,
+    .mode-inline {
+      min-height: 30px;
+      min-width: 50px;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--ink);
+      background: white;
+      border-radius: 999px;
+      padding: 4px 11px;
+      box-shadow: 3px 3px 0 var(--ink);
+      font-size: 18px;
+      line-height: 1;
+      font-weight: 1000;
+      white-space: nowrap;
+    }
+
+    .mode-inline {
+      min-width: 62px;
+      font-size: 15px;
+    }
+
+    .target-num {
+      font-size: 46px;
+      line-height: 1;
+      font-weight: 1000;
+    }
+
+    .hint {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      word-break: keep-all;
+    }
+
+    .bits {
+      display: flex;
+      gap: 8px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-behavior: smooth;
+      padding-bottom: 3px;
+      scrollbar-width: thin;
+      max-width: 100%;
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: none;
+      touch-action: pan-x;
+    }
+
+    .bits::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .bits::-webkit-scrollbar-thumb {
+      background: var(--ink);
+      border-radius: 999px;
+    }
+
+    .bit-box {
+      flex: 0 0 62px;
+      min-width: 62px;
+      border: 2px solid var(--ink);
+      background: white;
+      text-align: center;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .bit-place {
+      position: relative;
+      height: 36px;
+      padding: 0 3px;
+      border-bottom: 2px solid var(--ink);
+      background: var(--soft);
+      font-size: 12px;
+      font-weight: 900;
+      display: grid;
+      place-items: center;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .bit-value {
+      height: 36px;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      font-weight: 1000;
+    }
+
+    .bit-value.active {
+      color: white;
+      background: var(--ink);
+    }
+
+    .bit-box.correct-feedback {
+      background: #e8f8ee;
+      animation: bitBoing .38s ease-in-out 0s 2;
+    }
+
+    .bit-box.correct-feedback .bit-value {
+      background: #31b86b;
+      color: white;
+    }
+
+    .bit-box.wrong-feedback {
+      background: #fff0f0;
+      animation: bitBoing .28s ease-in-out 0s 3;
+    }
+
+    .bit-box.wrong-feedback .bit-value {
+      background: #ff4b4b;
+      color: white;
+    }
+
+    @keyframes bitBoing {
+      0% {
+        transform: scale(1) translateY(0);
+      }
+      35% {
+        transform: scale(1.13) translateY(-7px);
+      }
+      65% {
+        transform: scale(.96) translateY(2px);
+      }
+      100% {
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .game-wrap {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 250px;
+      overflow: hidden;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          var(--paper) 0px,
+          var(--paper) 34px,
+          var(--line) 35px,
+          var(--paper) 36px
+        );
+    }
+
+    .notebook-margin {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 74px;
+      width: 2px;
+      background: #999;
+      opacity: .5;
+    }
+
+    .ground {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 68px;
+      height: 3px;
+      background: var(--ink);
+    }
+
+    .runner {
+      position: absolute;
+      left: 120px;
+      bottom: 70px;
+      width: 56px;
+      height: 66px;
+      z-index: 8;
+      transition: bottom .09s ease-out;
+    }
+
+    .runner.jump {
+      bottom: 168px;
+    }
+
+    .runner-body {
+      position: absolute;
+      left: 5px;
+      top: 4px;
+      width: 46px;
+      height: 46px;
+      border: 3px solid var(--ink);
+      background: white;
+      border-radius: 8px;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .runner-body::before {
+      content: "";
+      position: absolute;
+      left: 11px;
+      top: 13px;
+      width: 6px;
+      height: 6px;
+      background: var(--ink);
+      border-radius: 50%;
+      box-shadow: 18px 0 0 var(--ink);
+    }
+
+    .runner-body::after {
+      content: "";
+      position: absolute;
+      left: 15px;
+      top: 28px;
+      width: 16px;
+      height: 7px;
+      border-bottom: 3px solid var(--ink);
+      border-radius: 0 0 999px 999px;
+    }
+
+    .leg {
+      position: absolute;
+      bottom: 0;
+      width: 10px;
+      height: 21px;
+      background: var(--ink);
+      border-radius: 999px;
+      animation: runLeg .25s infinite alternate;
+    }
+
+    .leg.l1 {
+      left: 13px;
+    }
+
+    .leg.l2 {
+      left: 34px;
+      animation-delay: .13s;
+    }
+
+    @keyframes runLeg {
+      from { transform: rotate(18deg); }
+      to { transform: rotate(-18deg); }
+    }
+
+    .judge-line {
+      display: none;
+    }
+
+    .judge-line::before {
+      display: none;
+    }
+
+    .coin-wrap {
+      position: absolute;
+      bottom: 0;
+      width: 76px;
+      height: 250px;
+      z-index: 4;
+    }
+
+    .coin {
+      position: absolute;
+      left: 17px;
+      bottom: 168px;
+      width: 44px;
+      height: 44px;
+      border: 3px solid var(--ink);
+      border-radius: 50%;
+      background: white;
+      box-shadow: 3px 3px 0 var(--ink);
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      font-weight: 1000;
+      line-height: 1;
+    }
+
+    .coin::after {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      opacity: .22;
+      pointer-events: none;
+    }
+
+    .coin-wrap.current .coin {
+      background: var(--soft);
+      transform: scale(1.08);
+    }
+
+    .coin-wrap.collected .coin {
+      opacity: 0;
+      transform: scale(.2);
+    }
+
+    .coin-wrap.missed .coin {
+      opacity: .25;
+    }
+
+    .place-tag {
+      display: none;
+    }
+
+    .message {
+      position: absolute;
+      left: 50%;
+      top: 18px;
+      transform: translateX(-50%);
+      background: white;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      padding: 9px 14px;
+      box-shadow: 3px 3px 0 var(--ink);
+      font-size: 14px;
+      font-weight: 1000;
+      z-index: 20;
+      white-space: nowrap;
+    }
+
+    .controls {
+      padding: 10px 14px;
+      border-top: 3px solid var(--ink);
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 14px;
+      flex: 0 0 auto;
+    }
+
+    .key-guide {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .key-guide b {
+      color: var(--ink);
+    }
+
+    button {
+      appearance: none;
+      border: 3px solid var(--ink);
+      background: white;
+      color: var(--ink);
+      border-radius: 9px;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: 1000;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+
+    button:hover {
+      background: var(--soft);
+    }
+
+    button:active {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(251,251,247,.95) 0px,
+          rgba(251,251,247,.95) 39px,
+          rgba(215,215,210,.95) 40px,
+          rgba(251,251,247,.95) 41px
+        );
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .start-box {
+      width: min(540px, 100%);
+      border: 3px solid var(--ink);
+      background: white;
+      border-radius: 12px;
+      padding: 22px;
+      text-align: center;
+      box-shadow: 7px 7px 0 var(--ink);
+    }
+
+    .start-box h1 {
+      margin: 0 0 10px;
+      font-size: 38px;
+      letter-spacing: -1px;
+    }
+
+    .start-box p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-weight: 700;
+      word-break: keep-all;
+    }
+
+    .start-summary {
+      font-size: 16px;
+    }
+
+    .start-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .start-buttons button {
+      min-width: 120px;
+    }
+
+    .howto-modal {
+      position: absolute;
+      inset: 0;
+      z-index: 40;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(251, 251, 247, .86);
+      backdrop-filter: blur(3px);
+    }
+
+    .howto-box {
+      width: min(520px, 100%);
+      border: 3px solid var(--ink);
+      background: white;
+      border-radius: 12px;
+      padding: 22px;
+      text-align: left;
+      box-shadow: 7px 7px 0 var(--ink);
+    }
+
+    .howto-box h2 {
+      margin: 0 0 14px;
+      font-size: 28px;
+      letter-spacing: -0.8px;
+      text-align: center;
+    }
+
+    .howto-box p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      line-height: 1.65;
+      font-weight: 800;
+      word-break: keep-all;
+    }
+
+    .howto-box button {
+      display: block;
+      margin: 18px auto 0;
+      min-width: 120px;
+    }
+
+    .wrong-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .wrong-item {
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      padding: 11px 12px;
+      background: var(--paper);
+      box-shadow: 3px 3px 0 var(--ink);
+      font-weight: 800;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+
+    .wrong-item b {
+      color: var(--ink);
+    }
+
+    .explain-line {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--ink);
+      color: var(--ink);
+      font-weight: 900;
+    }
+
+    .wrong-empty {
+      text-align: center;
+      color: var(--muted);
+      font-weight: 900;
+      padding: 18px 0 6px;
+    }
+
+    .score-box {
+      max-height: min(760px, calc(100vh - 56px));
+      overflow-y: auto;
+    }
+
+    .score-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 4px 0 14px;
+    }
+
+    .score-tab {
+      flex: 1;
+      padding: 10px 12px;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .score-tab.active {
+      background: var(--ink);
+      color: white;
+    }
+
+    .score-record-panel {
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      background: var(--paper);
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .record-title {
+      font-weight: 1000;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .record-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .record-chip {
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      background: white;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .record-chip b {
+      color: var(--ink);
+    }
+
+    .name-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .name-row input {
+      flex: 1;
+      min-width: 0;
+      border: 3px solid var(--ink);
+      border-radius: 9px;
+      padding: 12px 12px;
+      font: inherit;
+      font-weight: 800;
+      outline: none;
+      background: white;
+    }
+
+    .name-row input:focus {
+      background: var(--soft);
+    }
+
+    .name-row button {
+      flex: 0 0 auto;
+      min-width: 104px;
+    }
+
+    .save-message {
+      min-height: 20px;
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .leaderboard-list {
+      display: grid;
+      gap: 8px;
+      margin: 12px 0 4px;
+    }
+
+    .leaderboard-item {
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      align-items: center;
+      gap: 8px;
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      background: white;
+      padding: 10px 11px;
+      box-shadow: 3px 3px 0 var(--ink);
+      font-weight: 900;
+    }
+
+    .leaderboard-rank {
+      font-weight: 1000;
+    }
+
+    .leaderboard-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .leaderboard-score {
+      font-size: 18px;
+      font-weight: 1000;
+    }
+
+    .gameover-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .gameover-buttons button {
+      min-width: 110px;
+    }
+
+    .difficulty-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 8px 0 8px;
+    }
+
+    .difficulty-label {
+      font-size: 14px;
+      font-weight: 1000;
+      color: var(--ink);
+    }
+
+    .difficulty-desc {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.45;
+      margin-bottom: 16px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 58px;
+      height: 31px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: white;
+      border: 3px solid var(--ink);
+      border-radius: 999px;
+      box-shadow: 3px 3px 0 var(--ink);
+      transition: .15s;
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 17px;
+      height: 17px;
+      left: 4px;
+      top: 4px;
+      background: var(--ink);
+      border-radius: 50%;
+      transition: .15s;
+    }
+
+    .switch input:checked + .slider::before {
+      transform: translateX(26px);
+    }
+
+    .switch input:checked + .slider {
+      background: var(--soft);
+    }
+
+    body.hard-mode .coin {
+      font-size: 0;
+    }
+
+    body.hard-mode .coin::before {
+      content: "";
+    }
+
+    body.hard-mode .bit-place {
+      color: transparent;
+      user-select: none;
+    }
+
+    body.hard-mode .bit-place::after {
+      content: "?";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      line-height: 1;
+      text-align: center;
+    }
+
+    .gameover-score {
+      font-size: 42px;
+      font-weight: 1000;
+      margin: 10px 0 6px;
+    }
+
+    .gameover-detail {
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+
+    .score-box {
+      max-height: min(680px, calc(100vh - 56px));
+      overflow-y: auto;
+    }
+
+    .score-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 4px 0 14px;
+    }
+
+    .score-tab {
+      flex: 1;
+      padding: 10px 12px;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .score-tab.active {
+      background: var(--ink);
+      color: white;
+    }
+
+    .leaderboard-list {
+      display: grid;
+      gap: 8px;
+      margin: 10px 0 14px;
+    }
+
+    .leaderboard-item {
+      display: grid;
+      grid-template-columns: 50px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      background: white;
+      padding: 10px 12px;
+      box-shadow: 3px 3px 0 var(--ink);
+      font-weight: 900;
+    }
+
+    .leaderboard-rank {
+      width: 34px;
+      height: 34px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: white;
+      font-size: 13px;
+      font-weight: 1000;
+      line-height: 1;
+    }
+
+    .leaderboard-rank.rank-1 {
+      background: #FFD84D;
+    }
+
+    .leaderboard-rank.rank-2 {
+      background: #D9DDE3;
+    }
+
+    .leaderboard-rank.rank-3 {
+      background: #D89A5B;
+    }
+
+    .leaderboard-score {
+      justify-self: end;
+      font-size: 20px;
+      font-weight: 1000;
+    }
+
+    .score-modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .score-modal-actions button {
+      min-width: 110px;
+    }
+
+    .score-record-panel {
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      background: var(--paper);
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 12px;
+      margin-top: 14px;
+    }
+
+    .record-title {
+      font-weight: 1000;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .record-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .record-chip {
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      background: white;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .record-chip b {
+      color: var(--ink);
+    }
+
+    .name-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .name-row input {
+      flex: 1;
+      min-width: 0;
+      border: 3px solid var(--ink);
+      border-radius: 9px;
+      padding: 12px 12px;
+      font: inherit;
+      font-weight: 800;
+      outline: none;
+      background: white;
+    }
+
+    .name-row input:focus {
+      background: var(--soft);
+    }
+
+    .name-row button {
+      flex: 0 0 auto;
+      min-width: 104px;
+    }
+
+    .save-message {
+      min-height: 20px;
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .hidden-hint {
+      display: none !important;
+    }
+
+    .hidden-controls {
+      display: none !important;
+    }
+
+    .score-record-box {
+      max-height: min(560px, calc(100vh - 56px));
+      overflow-y: auto;
+    }
+
+    .score-record-panel.always-open {
+      margin-top: 4px;
+      margin-bottom: 14px;
+    }
+
+    .qualify-message {
+      color: var(--ink);
+      font-weight: 1000;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .score-modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .score-modal-actions button {
+      min-width: 110px;
+    }
+
+    .rank-ask-box {
+      text-align: center;
+      max-width: 430px;
+    }
+
+    .rank-ask-text {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-weight: 900;
+      line-height: 1.6;
+      word-break: keep-all;
+    }
+
+    .rank-ask-info {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 10px 0 18px;
+    }
+
+    .rank-ask-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .rank-ask-actions button {
+      min-width: 110px;
+    }
+
+    .top-rank-badge {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      z-index: 12;
+      max-width: min(430px, calc(100% - 32px));
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .92);
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 8px 13px;
+      font-size: 13px;
+      font-weight: 1000;
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      pointer-events: none;
+    }
+
+    .hidden-life-top {
+      display: none !important;
+    }
+
+
+
+
+
+    .runner-life {
+      position: absolute;
+      left: 79px;
+      bottom: 43px;
+      z-index: 20;
+      width: 92px;
+      text-align: center;
+      font-size: 15px;
+      line-height: 1;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .leaderboard-list {
+      max-height: 292px;
+      overflow-y: auto;
+      padding-right: 4px;
+      overscroll-behavior: contain;
+    }
+
+    .leaderboard-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .leaderboard-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .leaderboard-list::-webkit-scrollbar-thumb {
+      background: var(--ink);
+      border-radius: 999px;
+      border: 2px solid white;
+    }
+
+    .runner {
+      transform-origin: center center;
+    }
+
+    .runner.flipped {
+      transform: rotate(180deg);
+    }
+
+    .runner-body::before,
+    .runner-body::after {
+      display: none !important;
+    }
+
+    .runner-face {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 28px;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .character-box {
+      max-width: 460px;
+    }
+
+    .character-desc {
+      margin: -4px 0 14px;
+      color: var(--muted);
+      font-weight: 900;
+      text-align: center;
+      word-break: keep-all;
+    }
+
+    .character-preview {
+      width: 74px;
+      height: 74px;
+      margin: 0 auto 14px;
+      border: 3px solid var(--ink);
+      border-radius: 14px;
+      background: white;
+      box-shadow: 4px 4px 0 var(--ink);
+      display: grid;
+      place-items: center;
+      font-size: 40px;
+      line-height: 1;
+    }
+
+    .character-form {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .character-form label {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      align-items: center;
+      gap: 8px;
+      font-weight: 1000;
+    }
+
+    .character-form input {
+      width: 100%;
+      border: 3px solid var(--ink);
+      border-radius: 10px;
+      background: white;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 22px;
+      font-weight: 900;
+      text-align: center;
+      outline: none;
+    }
+
+    .character-form input:focus {
+      background: var(--soft);
+    }
+
+    .character-actions {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .character-actions button {
+      min-width: 92px;
+    }
+
+    /* emoji-runner-only */
+    .runner {
+      position: absolute;
+      left: 96px;
+      bottom: 64px;
+      width: 54px;
+      height: 54px;
+      z-index: 14;
+      transition:
+        bottom .09s linear,
+        transform .28s cubic-bezier(.2, .9, .2, 1.1);
+      transform-origin: center center;
+      display: grid;
+      place-items: center;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .runner.jump {
+      bottom: 142px;
+    }
+
+    .runner.flipped {
+      transform: rotate(180deg);
+    }
+
+    .runner::before,
+    .runner::after,
+    .runner-body,
+    .runner-body::before,
+    .runner-body::after {
+      display: none !important;
+      content: none !important;
+    }
+
+    .runner-face {
+      position: relative;
+      inset: auto;
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 100%;
+      font-size: 48px;
+      line-height: 1;
+      user-select: none;
+      filter: drop-shadow(2px 2px 0 rgba(0,0,0,.18));
+      transform: translateZ(0);
+    }
+
+    /* final-emoji-runner-only */
+    .game-wrap .runner,
+    .game-wrap .runner.emoji-runner {
+      position: absolute !important;
+      left: 96px !important;
+      bottom: 64px !important;
+      width: 58px !important;
+      height: 58px !important;
+      z-index: 14 !important;
+      display: grid !important;
+      place-items: center !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      transform-origin: center center !important;
+      will-change: transform;
+      transition:
+        bottom .09s linear,
+        transform .32s cubic-bezier(.2, .9, .2, 1.08) !important;
+    }
+
+    .game-wrap .runner.jump,
+    .game-wrap .runner.emoji-runner.jump {
+      bottom: 142px !important;
+    }
+
+    .game-wrap .runner::before,
+    .game-wrap .runner::after,
+    .game-wrap .runner *::before,
+    .game-wrap .runner *::after,
+    .game-wrap .runner-body,
+    .game-wrap .leg,
+    .game-wrap .runner .leg,
+    .game-wrap .runner-leg {
+      display: none !important;
+      content: none !important;
+      opacity: 0 !important;
+      width: 0 !important;
+      height: 0 !important;
+      pointer-events: none !important;
+    }
+
+    .game-wrap .runner-face {
+      display: block !important;
+      position: static !important;
+      width: auto !important;
+      height: auto !important;
+      font-size: 50px !important;
+      line-height: 1 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      filter: drop-shadow(2px 2px 0 rgba(0,0,0,.16));
+      display: grid !important;
+      place-items: center !important;
+      user-select: none;
+    }
+
+    .top-action-buttons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .sound-toggle-btn {
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      background: white;
+      padding: 8px 13px;
+      font-size: 14px;
+      font-weight: 1000;
+      box-shadow: 3px 3px 0 var(--ink);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .sound-toggle-btn.is-off {
+      background: var(--soft);
+      color: var(--muted);
+    }
+
+    .sound-toggle-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .binrun-title-inner {
+      position: relative;
+      display: grid !important;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .title-spacer {
+      min-width: 1px;
+      height: 1px;
+    }
+
+    .brand-center {
+      justify-self: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-center .logo {
+      flex: 0 0 auto;
+    }
+
+    .binrun-title {
+      text-align: center;
+      font-size: 34px !important;
+      font-weight: 1000;
+      letter-spacing: .5px;
+      line-height: 1;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .binrun-title-inner .top-action-buttons {
+      justify-self: end;
+    }
+
+    .icon-btn {
+      width: 42px;
+      height: 38px;
+      min-width: 42px;
+      padding: 0 !important;
+      display: inline-grid;
+      place-items: center;
+      font-size: 20px !important;
+      line-height: 1;
+    }
+
+    .character-config-btn.icon-btn,
+    .sound-toggle-btn.icon-btn {
+      text-align: center;
+    }
+
+    .coin.red-heart-coin {
+      background: #ff4f64 !important;
+      color: white !important;
+      border-color: var(--ink) !important;
+      box-shadow: 4px 4px 0 var(--ink), 0 0 0 4px rgba(255, 79, 100, .22);
+      font-size: 22px !important;
+    }
+
+    .coin.red-heart-coin::after {
+      content: "";
+      position: absolute;
+      inset: -8px;
+      border-radius: 999px;
+      border: 2px dashed rgba(255, 79, 100, .55);
+      animation: redPulse .7s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    @keyframes redPulse {
+      from {
+        transform: scale(.92);
+        opacity: .55;
+      }
+      to {
+        transform: scale(1.08);
+        opacity: 1;
+      }
+    }
+
+    .heart-tag {
+      color: #ff4f64 !important;
+      border-color: #ff4f64 !important;
+      background: white !important;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 720px) {
+      body {
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+        padding: 10px;
+      }
+
+      .app {
+        height: auto;
+      }
+
+      .top {
+        align-items: flex-start;
+      }
+
+      .brand {
+        font-size: 20px;
+      }
+
+      .title-bar {
+        padding: 9px 12px 7px;
+      }
+
+      .game-title {
+        font-size: 20px;
+      }
+
+      .hud {
+        grid-template-columns: 1fr;
+        padding: 10px;
+      }
+
+      .target-num {
+        font-size: 42px;
+      }
+
+      .target-row {
+        align-items: center;
+      }
+
+      .stat-item .label {
+        font-size: 12px;
+      }
+
+      .target-stats {
+        gap: 7px;
+      }
+
+      .score-inline {
+        min-width: 44px;
+        font-size: 18px;
+        padding: 6px 10px;
+      }
+
+      .mode-inline {
+        min-width: 56px;
+        font-size: 14px;
+        padding: 6px 9px;
+      }
+
+      .life-board {
+        font-size: 18px;
+        padding: 6px 9px;
+      }
+
+      .runner {
+        left: 92px;
+      }
+
+      .notebook-margin {
+        left: 58px;
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 9px 12px;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      .game-wrap {
+        min-height: 520px;
+      }
+
+      .icon-btn {
+        width: 40px;
+        height: 36px;
+        min-width: 40px;
+        font-size: 19px !important;
+      }
+
+      .binrun-title-inner {
+        grid-template-columns: 1fr;
+        gap: 9px;
+      }
+
+      .title-spacer {
+        display: none;
+      }
+
+      .brand-center {
+        gap: 8px;
+      }
+
+      .binrun-title {
+        font-size: 30px !important;
+      }
+
+      .binrun-title-inner .top-action-buttons {
+        justify-self: center;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .top-action-buttons {
+        gap: 6px;
+      }
+
+      .sound-toggle-btn {
+        padding: 7px 10px;
+        font-size: 12px;
+      }
+
+      /* final-emoji-runner-mobile-only */
+      .game-wrap .runner,
+      .game-wrap .runner.emoji-runner {
+        left: 92px !important;
+        bottom: 64px !important;
+        width: 54px !important;
+        height: 54px !important;
+      }
+
+      .game-wrap .runner.jump,
+      .game-wrap .runner.emoji-runner.jump {
+        bottom: 138px !important;
+      }
+
+      .game-wrap .runner-face {
+        font-size: 46px !important;
+      }
+
+
+
+      /* emoji-runner-mobile */
+      .runner {
+        left: 92px;
+        bottom: 64px;
+        width: 50px;
+        height: 50px;
+      }
+
+      .runner.jump {
+        bottom: 138px;
+      }
+
+      .runner-face {
+        font-size: 44px;
+      }
+
+      .title-inner {
+        align-items: center;
+      }
+
+      .title-left {
+        gap: 8px;
+      }
+
+      .game-title {
+        font-size: 20px;
+      }
+
+      .character-config-btn {
+        padding: 7px 10px;
+        font-size: 12px;
+      }
+
+      .character-form label {
+        grid-template-columns: 1fr;
+        gap: 5px;
+      }
+
+      .character-actions button {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .leaderboard-list {
+        max-height: 268px;
+        overflow-y: auto;
+        padding-right: 3px;
+      }
+
+      .runner-life {
+        left: 75px;
+        bottom: 40px;
+        width: 88px;
+        font-size: 14px;
+      }
+
+
+
+
+
+
+
+
+
+      .top-rank-badge {
+        top: 10px;
+        right: 10px;
+        max-width: calc(100% - 20px);
+        font-size: 12px;
+        padding: 7px 10px;
+      }
+
+      .rank-ask-actions {
+        gap: 8px;
+      }
+
+      .rank-ask-actions button {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .score-record-box {
+        max-height: calc(100vh - 42px);
+      }
+
+      .score-modal-actions button {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .score-box {
+        max-height: calc(100vh - 42px);
+      }
+
+      .leaderboard-item {
+        grid-template-columns: 38px minmax(0, 1fr) auto;
+        gap: 7px;
+        padding: 9px 10px;
+      }
+
+      .leaderboard-rank {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+      }
+
+      .leaderboard-name {
+        font-size: 14px;
+      }
+
+      .leaderboard-score {
+        font-size: 18px;
+      }
+
+      .score-modal-actions {
+        gap: 8px;
+      }
+
+      .score-modal-actions button {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .name-row {
+        flex-direction: column;
+      }
+
+      .name-row button {
+        width: 100%;
+      }
+
+      .overlay {
+        align-items: flex-start;
+        padding-top: 28px;
+        overflow-y: auto;
+      }
+
+      .start-box {
+        padding: 18px 16px;
+      }
+
+      .start-box h1 {
+        font-size: 32px;
+        margin-bottom: 8px;
+      }
+
+      .start-box p {
+        font-size: 14px;
+        line-height: 1.55;
+        margin-bottom: 16px;
+      }
+
+      .start-buttons {
+        flex-direction: row;
+      }
+
+      .start-buttons button {
+        min-width: 0;
+        flex: 1;
+        width: auto;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .start-buttons {
+        flex-wrap: wrap;
+      }
+
+      .start-buttons button {
+        flex: 1 1 calc(50% - 8px);
+      }
+
+      .name-row {
+        flex-direction: column;
+      }
+
+      .name-row button {
+        width: 100%;
+      }
+
+      .leaderboard-item {
+        grid-template-columns: 34px 1fr auto;
+        gap: 6px;
+        padding: 9px;
+      }
+
+      .leaderboard-score {
+        font-size: 16px;
+      }
+
+      .howto-modal {
+        align-items: flex-start;
+        overflow-y: auto;
+        padding-top: 28px;
+      }
+
+      .howto-box {
+        padding: 18px 16px;
+      }
+
+      .howto-box h2 {
+        font-size: 26px;
+      }
+
+      .howto-box p {
+        font-size: 14px;
+        line-height: 1.55;
+      }
+    }
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+    import {
+      getDatabase,
+      ref,
+      push,
+      get,
+      query,
+      orderByChild,
+      limitToLast
+    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+
+    /*
+      TODO: Firebase 콘솔에서 프로젝트 설정값을 복사해서 아래에 넣어주세요.
+
+      Realtime Database 규칙 예시:
+      {
+        "rules": {
+          "binaryRunner": {
+            "scores": {
+              ".read": true,
+              ".write": true
+            }
+          }
+        }
+      }
+    */
+    const firebaseConfig = {
+      apiKey: "AIzaSyBiSZE7MZdGNZk1uxe7pr08eq-Qmj3wq0w",
+      authDomain: "sofancat-d8629.firebaseapp.com",
+      databaseURL: "https://sofancat-d8629-default-rtdb.firebaseio.com",
+      projectId: "sofancat-d8629",
+      storageBucket: "sofancat-d8629.firebasestorage.app",
+      messagingSenderId: "1076519359093",
+      appId: "1:1076519359093:web:f4ede234c2a2c3476ede3c",
+      measurementId: "G-SJZNJY3WES"
+    };
+
+    let binaryRunnerDb = null;
+
+    window.binaryRunnerFirebaseReady = new Promise((resolve) => {
+      try {
+        const app = initializeApp(firebaseConfig);
+        binaryRunnerDb = getDatabase(app);
+
+        window.binaryRunnerFirebase = {
+          get db() {
+            return binaryRunnerDb;
+          },
+          ref,
+          push,
+          get,
+          query,
+          orderByChild,
+          limitToLast
+        };
+
+        resolve(window.binaryRunnerFirebase);
+      } catch (error) {
+        console.warn("Firebase 설정을 확인해주세요.", error);
+
+        window.binaryRunnerFirebase = {
+          get db() {
+            return null;
+          },
+          ref,
+          push,
+          get,
+          query,
+          orderByChild,
+          limitToLast
+        };
+
+        resolve(window.binaryRunnerFirebase);
+      }
+    });
+  </script>
+</head>
+<body>
+  <main class="app">
+    <section class="panel">
+      <div class="title-bar">
+        <div class="title-inner binrun-title-inner">
+          <div class="title-spacer" aria-hidden="true"></div>
+
+          <div class="brand-center">
+            <div class="logo">01</div>
+            <div class="game-title binrun-title">BinRun</div>
+          </div>
+
+          <div class="top-action-buttons">
+            <button class="character-config-btn icon-btn" id="characterConfigBtn" type="button" title="캐릭터 설정">🙂</button>
+            <button class="sound-toggle-btn icon-btn" id="soundToggleBtn" type="button" title="소리 켜기">🔊</button>
+          </div>
+        </div>
+
+        <div class="howto-modal hidden" id="characterModal">
+          <div class="howto-box character-box">
+            <h2>캐릭터 설정</h2>
+            <p class="character-desc">게임에서 사용할 표정을 직접 정할 수 있어요.</p>
+
+            <div class="character-preview" id="characterPreview">🙂</div>
+
+            <div class="character-form">
+              <label>
+                <span>기본 얼굴</span>
+                <input id="normalFaceInput" maxlength="4" value="🙂" />
+              </label>
+              <label>
+                <span>맞췄을 때</span>
+                <input id="correctFaceInput" maxlength="4" value="😆" />
+              </label>
+              <label>
+                <span>틀렸을 때</span>
+                <input id="wrongFaceInput" maxlength="4" value="😫" />
+              </label>
+            </div>
+
+            <div class="character-actions">
+              <button id="characterSaveBtn" type="button">저장</button>
+              <button id="characterResetBtn" type="button">기본값</button>
+              <button id="characterCloseBtn" type="button">닫기</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="howto-modal hidden" id="rankAskModal">
+          <div class="howto-box rank-ask-box">
+            <h2>10등 안에 들었어요!</h2>
+            <p class="rank-ask-text">이번 점수를 점수판에 기록할까요?</p>
+            <div class="rank-ask-info">
+              <div class="record-chip">난이도 <b id="askModeLabel">쉬움</b></div>
+              <div class="record-chip">점수 <b id="askScoreLabel">0</b></div>
+            </div>
+            <div class="rank-ask-actions">
+              <button id="rankAskYesBtn" type="button">예</button>
+              <button id="rankAskNoBtn" type="button">아니오</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="howto-modal hidden" id="scoreRecordModal">
+          <div class="howto-box score-record-box">
+            <h2>점수 기록</h2>
+            <div class="score-record-panel always-open">
+              <div class="record-title">10등 안에 들었어요!</div>
+              <div class="record-row">
+                <div class="record-chip">난이도 <b id="recordModeLabel">쉬움</b></div>
+                <div class="record-chip">점수 <b id="recordScoreLabel">0</b></div>
+              </div>
+              <div class="name-row">
+                <input id="playerNameInput" maxlength="12" placeholder="이름을 입력하세요" />
+                <button id="saveScoreBtn" type="button">점수 기록</button>
+              </div>
+              <div class="save-message" id="saveScoreMessage"></div>
+            </div>
+            <button id="recordCloseBtn" type="button">닫기</button>
+          </div>
+        </div>
+
+        <div class="howto-modal hidden" id="scoreModal">
+          <div class="howto-box score-box">
+            <h2>점수판</h2>
+
+            <div class="score-tabs">
+              <button id="scoreEasyTab" class="score-tab active" type="button">쉬움</button>
+              <button id="scoreHardTab" class="score-tab" type="button">어려움</button>
+            </div>
+
+            <div class="leaderboard-list" id="leaderboardList">
+              <div class="wrong-empty">점수판을 불러오는 중...</div>
+            </div>
+
+            <div class="score-modal-actions">
+              <button id="scoreCloseBtn" type="button">닫기</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="howto-modal hidden" id="wrongModal">
+          <div class="howto-box">
+            <h2>틀린 문제</h2>
+            <div class="wrong-list" id="wrongList"></div>
+            <button id="wrongCloseBtn" type="button">닫기</button>
+          </div>
+        </div>
+
+        <div class="howto-modal hidden" id="howToModal">
+          <div class="howto-box">
+            <h2>게임 방법</h2>
+            <p>
+              목표 숫자를 보고 가장 큰 자리부터 이진수로 판단합니다.
+            </p>
+            <p>
+              각 자리값마다 공이 하나씩 나타납니다. <b>공을 먹으면 1</b>, <b>공을 지나치면 0</b>으로 기록됩니다.
+            </p>
+            <p>
+              예를 들어 <b>6 = 110</b>이므로, 공 먹기 → 공 먹기 → 지나치기 순서로 입력하면 됩니다.
+            </p>
+            <p>
+              점수가 오를수록 숫자 범위가 커지고 속도도 빨라집니다.
+            </p>
+            <button id="howToCloseBtn" type="button">닫기</button>
+          </div>
+        </div>
+      </div>
+      <div class="hud">
+        <div class="card target-card">
+          <div class="target-row">
+            <div>
+              <div class="label">목표 숫자</div>
+              <div class="target-num" id="targetNumber">7</div>
+            </div>
+            <div class="target-stats">
+              <div class="stat-item">
+                <div class="label">난이도</div>
+                <div class="mode-inline" id="modeLabel">쉬움</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">점수</div>
+                <div class="score-inline" id="score">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">최고</div>
+                <div class="score-inline" id="bestScore">0</div>
+              </div>
+            </div>
+          </div>
+          <div class="hint hidden-hint" id="hintText"></div>
+        </div>
+
+        <div class="card">
+          <div class="label">입력 순서</div>
+          <div class="bits" id="bitBoxes"></div>
+        </div>
+      </div>
+
+      <div class="game-wrap" id="game">
+        <div class="notebook-margin"></div>
+        <div class="top-rank-badge" id="topRankBadge">🏆 1등 기록 불러오는 중...</div>
+        <div class="ground"></div>
+          <div class="runner-life" id="runnerLife"></div>
+
+        <div class="message" id="message">공에 닿으면 1!</div>
+
+        <div class="runner emoji-runner" id="runner">
+          <span class="runner-face" id="runnerFace">🙂</span>
+        </div>
+
+        <div class="overlay" id="startOverlay">
+          <div class="start-box">
+            <h1>BinRun</h1>
+            <p class="start-summary">
+              난이도를 선택하고 게임을 시작하세요.
+            </p>
+            <div class="difficulty-box">
+              <span class="difficulty-label">쉬움</span>
+              <label class="switch">
+                <input type="checkbox" id="hardModeToggle">
+                <span class="slider"></span>
+              </label>
+              <span class="difficulty-label">어려움</span>
+            </div>
+            <div class="difficulty-desc" id="difficultyDesc">
+              쉬움: 공과 입력 순서에 자리값이 표시됩니다.
+            </div>
+            <div class="start-buttons" id="startButtons">
+              <button id="howToBtn" type="button">게임 방법</button>
+              <button id="wrongBtn" class="hidden" type="button">틀린 문제</button>
+              <button id="scoreBtn" type="button">점수판</button>
+              <button id="startBtn" type="button">게임 시작</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls hidden-controls"></div>
+    </section>
+  </main>
+
+  <script>
+    const runner = document.getElementById("runner");
+    const runnerFace = document.getElementById("runnerFace");
+    const game = document.getElementById("game");
+    const bitBoxes = document.getElementById("bitBoxes");
+    const targetNumberEl = document.getElementById("targetNumber");
+    const scoreEl = document.getElementById("score");
+    const bestScoreEl = document.getElementById("bestScore");
+    const modeLabel = document.getElementById("modeLabel");
+    const lifeBoard = null;
+    const messageEl = document.getElementById("message");
+    const lifeText = null;
+    const runnerLife = document.getElementById("runnerLife");
+    const topRankBadge = document.getElementById("topRankBadge");
+    const hintText = document.getElementById("hintText");
+    const startOverlay = document.getElementById("startOverlay");
+    const startBtn = document.getElementById("startBtn");
+    const hardModeToggle = document.getElementById("hardModeToggle");
+    const difficultyDesc = document.getElementById("difficultyDesc");
+    const howToBtn = document.getElementById("howToBtn");
+    const howToModal = document.getElementById("howToModal");
+    const howToCloseBtn = document.getElementById("howToCloseBtn");
+    const wrongBtn = document.getElementById("wrongBtn");
+    const wrongModal = document.getElementById("wrongModal");
+    const wrongCloseBtn = document.getElementById("wrongCloseBtn");
+    const wrongList = document.getElementById("wrongList");
+    const scoreBtn = document.getElementById("scoreBtn");
+    const rankAskModal = document.getElementById("rankAskModal");
+    const rankAskYesBtn = document.getElementById("rankAskYesBtn");
+    const rankAskNoBtn = document.getElementById("rankAskNoBtn");
+    const askModeLabel = document.getElementById("askModeLabel");
+    const askScoreLabel = document.getElementById("askScoreLabel");
+    const scoreRecordModal = document.getElementById("scoreRecordModal");
+    const recordCloseBtn = document.getElementById("recordCloseBtn");
+    const scoreModal = document.getElementById("scoreModal");
+    const scoreCloseBtn = document.getElementById("scoreCloseBtn");
+    const scoreEasyTab = document.getElementById("scoreEasyTab");
+    const scoreHardTab = document.getElementById("scoreHardTab");
+    const leaderboardList = document.getElementById("leaderboardList");
+    const playerNameInput = document.getElementById("playerNameInput");
+    const openRecordBtn = document.getElementById("openRecordBtn");
+    const scoreRecordPanel = document.getElementById("scoreRecordPanel");
+    const saveScoreBtn = document.getElementById("saveScoreBtn");
+    const saveScoreMessage = document.getElementById("saveScoreMessage");
+    const recordModeLabel = document.getElementById("recordModeLabel");
+    const recordScoreLabel = document.getElementById("recordScoreLabel");
+    const characterConfigBtn = document.getElementById("characterConfigBtn");
+    const soundToggleBtn = document.getElementById("soundToggleBtn");
+    const characterModal = document.getElementById("characterModal");
+    const characterCloseBtn = document.getElementById("characterCloseBtn");
+    const characterSaveBtn = document.getElementById("characterSaveBtn");
+    const characterResetBtn = document.getElementById("characterResetBtn");
+    const characterPreview = document.getElementById("characterPreview");
+    const normalFaceInput = document.getElementById("normalFaceInput");
+    const correctFaceInput = document.getElementById("correctFaceInput");
+    const wrongFaceInput = document.getElementById("wrongFaceInput");
+
+    let score = 0;
+    let bestScore = Number(localStorage.getItem("binaryRunnerBestScore") || 0);
+    let maxLife = 3;
+    let life = maxLife;
+
+    let targetNumber = 0;
+    let places = [4, 2, 1];
+    let correctBits = [];
+    let inputBits = [];
+
+    let coins = [];
+    let currentIndex = 0;
+    let isJumping = false;
+    let isPlaying = false;
+    let lastTime = 0;
+    let speed = 185;
+    let hardMode = false;
+    let playingModeLabel = "쉬움";
+    let finishedModeLabel = "쉬움";
+    let wrongHistory = [];
+    let lastFinishedScore = 0;
+    let lastFinishedMode = "쉬움";
+    let scoreBoardMode = "easy";
+    let scoreAlreadySaved = false;
+    let scoreQualifiesForBoard = false;
+    let runnerRotateDeg = 0;
+    let faceTimer = null;
+
+    const CHARACTER_FACE_KEY = "binaryRunnerCharacterFaces";
+    const DEFAULT_CHARACTER_FACES = {
+      normal: "🙂",
+      correct: "😆",
+      wrong: "😫"
+    };
+    let characterFaces = loadCharacterFaces();
+
+    const SOUND_ENABLED_KEY = "binaryRunnerSoundEnabled";
+    let soundEnabled = localStorage.getItem(SOUND_ENABLED_KEY) !== "false";
+    let audioContext = null;
+    let bgmTimer = null;
+    let bgmStep = 0;
+    let bgmPlaying = false;
+
+    function getDifficultyPlaces() {
+      if (score < 4) return [4, 2, 1];
+      if (score < 9) return [8, 4, 2, 1];
+      if (score < 15) return [16, 8, 4, 2, 1];
+      if (score < 35) return [32, 16, 8, 4, 2, 1];
+      return [64, 32, 16, 8, 4, 2, 1];
+    }
+
+    function isFinalStage() {
+      return getDifficultyPlaces()[0] >= 64;
+    }
+
+    function canSpawnHeartCoin() {
+      return getDifficultyPlaces()[0] >= 32;
+    }
+
+    function shouldSpawnHeartCoin() {
+      if (!canSpawnHeartCoin()) return false;
+      return Math.random() < 0.2;
+    }
+
+    function getHeartCoinValue() {
+      return "❤️";
+    }
+
+    function applyHeartCoinEffect() {
+      if (life < maxLife) {
+        life += 1;
+        showMessage("❤️ +1", 760);
+      } else {
+        maxLife += 1;
+        life = maxLife;
+        showMessage("❤️ 최대 체력 +1", 900);
+      }
+
+      playSound("heal");
+      renderLife();
+    }
+
+
+    function toBits(num, placeList) {
+      return placeList.map(place => (num & place) ? 1 : 0);
+    }
+
+    function showMessage(text, time = 900) {
+      messageEl.textContent = text;
+      messageEl.classList.remove("hidden");
+
+      clearTimeout(showMessage.timer);
+      showMessage.timer = setTimeout(() => {
+        if (isPlaying) messageEl.classList.add("hidden");
+      }, time);
+    }
+
+    function renderBestScore() {
+      if (bestScoreEl) {
+        bestScoreEl.textContent = bestScore;
+      }
+    }
+
+    function updateBestScore() {
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem("binaryRunnerBestScore", String(bestScore));
+      }
+      renderBestScore();
+    }
+
+    function getPlaceExpression(num) {
+      if (num === 0) return "0";
+
+      let highest = 1;
+      while (highest * 2 <= num) {
+        highest *= 2;
+      }
+
+      const used = [];
+      for (let place = highest; place >= 1; place = Math.floor(place / 2)) {
+        if ((num & place) !== 0) {
+          used.push(place);
+        }
+      }
+
+      return used.length ? used.join(" + ") : "0";
+    }
+
+    function updateModeLabel() {
+      if (!modeLabel) return;
+      modeLabel.textContent = isPlaying ? playingModeLabel : finishedModeLabel;
+    }
+
+    function getSelectedModeLabel() {
+      return hardModeToggle.checked ? "어려움" : "쉬움";
+    }
+
+    function renderLife() {
+      const safeLife = Math.max(0, life);
+      const hearts = "❤️".repeat(safeLife) + "🤍".repeat(Math.max(0, maxLife - safeLife));
+
+      if (runnerLife) {
+        runnerLife.textContent = hearts;
+      }
+    }
+
+    function normalizeFace(value, fallback) {
+      const trimmed = String(value || "").trim();
+      return trimmed || fallback;
+    }
+
+    function loadCharacterFaces() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(CHARACTER_FACE_KEY) || "{}");
+        return {
+          normal: normalizeFace(saved.normal, DEFAULT_CHARACTER_FACES.normal),
+          correct: normalizeFace(saved.correct, DEFAULT_CHARACTER_FACES.correct),
+          wrong: normalizeFace(saved.wrong, DEFAULT_CHARACTER_FACES.wrong)
+        };
+      } catch (error) {
+        return { ...DEFAULT_CHARACTER_FACES };
+      }
+    }
+
+    function saveCharacterFaces() {
+      localStorage.setItem(CHARACTER_FACE_KEY, JSON.stringify(characterFaces));
+    }
+
+    function syncCharacterInputs() {
+      normalFaceInput.value = characterFaces.normal;
+      correctFaceInput.value = characterFaces.correct;
+      wrongFaceInput.value = characterFaces.wrong;
+      characterPreview.textContent = characterFaces.normal;
+    }
+
+    function setRunnerFace(type = "normal") {
+      if (!runnerFace) return;
+      runnerFace.textContent = characterFaces[type] || characterFaces.normal;
+      if (characterPreview) {
+        characterPreview.textContent = runnerFace.textContent;
+      }
+    }
+
+    function flashRunnerFace(type, duration = 800) {
+      clearTimeout(faceTimer);
+      setRunnerFace(type);
+      faceTimer = setTimeout(() => {
+        setRunnerFace("normal");
+      }, duration);
+    }
+
+    function applyRunnerRotation() {
+      if (!runner) return;
+      const isUpsideDown = Math.abs(Math.round(runnerRotateDeg / 180)) % 2 === 1;
+
+      /*
+        좌우 여백만 살짝 보정합니다.
+        위아래 위치는 원래 회전 위치 그대로 둡니다.
+      */
+      const offsetX = isUpsideDown ? 2 : 0;
+      const offsetY = 0;
+
+      runner.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${runnerRotateDeg}deg)`;
+    }
+
+
+
+    function getBaseSpeed() {
+      if (score < 4) return 185;
+      if (score < 9) return 225;
+      if (score < 15) return 270;
+      return 320;
+    }
+
+    function getCurrentSpeed() {
+      return getBaseSpeed() + Math.min(score * 7, 140);
+    }
+
+    function clearBitFeedback() {
+      document.querySelectorAll(".bit-box").forEach(box => {
+        box.classList.remove("correct-feedback", "wrong-feedback");
+      });
+    }
+
+    function playAnswerFeedback(isCorrect) {
+      clearBitFeedback();
+
+      places.forEach((_, index) => {
+        const valueEl = document.getElementById(`bit-${index}`);
+        const box = valueEl?.closest(".bit-box");
+        if (!box) return;
+
+        if (isCorrect) {
+          box.classList.add("correct-feedback");
+        } else if (inputBits[index] !== correctBits[index]) {
+          box.classList.add("wrong-feedback");
+        }
+      });
+    }
+
+
+
+    function resetInputOrderScroll() {
+      const candidates = [
+        document.getElementById("bitBoxes"),
+        document.getElementById("inputBoxes"),
+        document.getElementById("inputStatus"),
+        document.querySelector(".bit-boxes"),
+        document.querySelector(".input-boxes"),
+        document.querySelector(".input-status"),
+        document.querySelector(".bit-row"),
+        document.querySelector(".input-row")
+      ].filter(Boolean);
+
+      candidates.forEach((el) => {
+        if (typeof el.scrollTo === "function") {
+          el.scrollTo({ left: 0, behavior: "auto" });
+        } else {
+          el.scrollLeft = 0;
+        }
+      });
+    }
+
+    function renderBitBoxes() {
+      bitBoxes.innerHTML = "";
+      clearBitFeedback();
+
+      places.forEach((place, index) => {
+        const box = document.createElement("div");
+        box.className = "bit-box";
+
+        const placeEl = document.createElement("div");
+        placeEl.className = "bit-place";
+        placeEl.textContent = `${place}`;
+
+        const valueEl = document.createElement("div");
+        valueEl.className = "bit-value";
+        valueEl.id = `bit-${index}`;
+        valueEl.textContent = inputBits[index] ?? "?";
+
+        box.appendChild(placeEl);
+        box.appendChild(valueEl);
+        bitBoxes.appendChild(box);
+      });
+    }
+
+    function updateBitBoxes() {
+      let activeBox = null;
+
+      places.forEach((_, index) => {
+        const el = document.getElementById(`bit-${index}`);
+        if (!el) return;
+
+        el.textContent = inputBits[index] ?? "?";
+        el.classList.toggle("active", index === currentIndex);
+
+        if (index === currentIndex) {
+          activeBox = el.closest(".bit-box");
+        }
+      });
+
+      if (activeBox) {
+        const container = bitBoxes;
+        const targetLeft =
+          activeBox.offsetLeft -
+          container.clientWidth / 2 +
+          activeBox.clientWidth / 2;
+
+        container.scrollTo({
+          left: Math.max(0, targetLeft),
+          behavior: "smooth"
+        });
+      }
+    }
+
+    function clearCoins() {
+      coins.forEach(item => item.el.remove());
+      coins = [];
+    }
+
+    function createCoin(place, x, roundNumber, isHeartCoin = false) {
+      const coinWrap = document.createElement("div");
+      coinWrap.className = "coin-wrap";
+      coinWrap.style.left = `${x}px`;
+
+      if (isHeartCoin) {
+        coinWrap.innerHTML = `
+          <div class="place-tag heart-tag">회복</div>
+          <div class="coin red-heart-coin">❤️</div>
+        `;
+      } else {
+        coinWrap.innerHTML = `
+          <div class="place-tag">${roundNumber} : ${place}의 자리</div>
+          <div class="coin">${place}</div>
+        `;
+      }
+
+      game.appendChild(coinWrap);
+
+      coins.push({
+        el: coinWrap,
+        x,
+        place,
+        roundNumber,
+        isHeartCoin,
+        judged: false
+      });
+    }
+
+    function startRound() {
+      resetInputOrderScroll();
+      places = getDifficultyPlaces();
+
+      const max = places[0] * 2 - 1;
+      targetNumber = Math.floor(Math.random() * (max + 1));
+      correctBits = toBits(targetNumber, places);
+      inputBits = Array(places.length).fill(null);
+      currentIndex = 0;
+
+      targetNumberEl.textContent = targetNumber;
+      hintText.textContent = "";
+      renderBitBoxes();
+      updateBitBoxes();
+
+      clearCoins();
+
+      const startX = game.clientWidth + 120;
+      places.forEach((place, index) => {
+        createCoin(place, startX + index * 190, targetNumber);
+      });
+
+      if (shouldSpawnHeartCoin()) {
+        const heartIndex = Math.floor(Math.random() * Math.max(1, places.length - 1));
+        const heartX = startX + (heartIndex + 0.55) * 190;
+        createCoin(0, heartX, targetNumber, true);
+      }
+    }
+
+    function appendNextRound() {
+      const nextPlaces = getDifficultyPlaces();
+      const max = nextPlaces[0] * 2 - 1;
+      const nextTarget = Math.floor(Math.random() * (max + 1));
+
+      targetNumber = nextTarget;
+      places = nextPlaces;
+      correctBits = toBits(targetNumber, places);
+      inputBits = Array(places.length).fill(null);
+      currentIndex = 0;
+
+      targetNumberEl.textContent = targetNumber;
+      hintText.textContent = "";
+      renderBitBoxes();
+      updateBitBoxes();
+
+      const farthestX = coins.reduce((max, item) => Math.max(max, item.x), game.clientWidth);
+      const startX = Math.max(farthestX + 240, game.clientWidth + 120);
+
+      nextPlaces.forEach((place, index) => {
+        createCoin(place, startX + index * 190, targetNumber);
+      });
+    }
+
+    function finishCoin(item, bit) {
+      if (!item || item.judged) return;
+
+      item.judged = true;
+
+      if (item.isHeartCoin) {
+        if (bit === 1) {
+          applyHeartCoinEffect();
+          item.el.classList.add("collected");
+        } else {
+          showMessage("❤️ 지나침", 560);
+          item.el.classList.add("missed");
+        }
+
+        setTimeout(() => item.el.remove(), 160);
+        return;
+      }
+
+      inputBits[currentIndex] = bit;
+
+      if (bit === 1) {
+        playSound("coin");
+      }
+
+      showMessage(bit === 1 ? "1" : "0", 560);
+
+      if (bit === 1) {
+        item.el.classList.add("collected");
+      } else {
+        item.el.classList.add("missed");
+      }
+
+      currentIndex++;
+      updateBitBoxes();
+
+      if (currentIndex >= places.length) {
+        checkAnswer();
+      }
+    }
+
+    function isCollidingWithRunner(item) {
+      const coinEl = item.el.querySelector(".coin");
+      if (!coinEl) return false;
+
+      const runnerRect = runner.getBoundingClientRect();
+      const coinRect = coinEl.getBoundingClientRect();
+
+      const horizontalOverlap =
+        runnerRect.left < coinRect.right &&
+        runnerRect.right > coinRect.left;
+
+      const verticalOverlap =
+        runnerRect.top < coinRect.bottom &&
+        runnerRect.bottom > coinRect.top;
+
+      return horizontalOverlap && verticalOverlap;
+    }
+
+    function hasPassedRunner(item) {
+      const coinEl = item.el.querySelector(".coin");
+      if (!coinEl) return false;
+
+      const runnerRect = runner.getBoundingClientRect();
+      const coinRect = coinEl.getBoundingClientRect();
+
+      return coinRect.right < runnerRect.left;
+    }
+
+    function getModeKeyFromLabel(label) {
+      return label === "어려움" ? "hard" : "easy";
+    }
+
+    function getModeLabelFromKey(key) {
+      return key === "hard" ? "어려움" : "쉬움";
+    }
+
+    function getSelectedScoreBoardMode() {
+      if (isPlaying) return getModeKeyFromLabel(playingModeLabel);
+      return getModeKeyFromLabel(finishedModeLabel || getSelectedModeLabel());
+    }
+
+    function setScoreTabs(modeKey) {
+      scoreBoardMode = modeKey;
+      scoreEasyTab.classList.toggle("active", modeKey === "easy");
+      scoreHardTab.classList.toggle("active", modeKey === "hard");
+    }
+
+    function updateRecordPanel() {
+      const modeLabel = lastFinishedMode || getSelectedModeLabel();
+      const scoreValue = lastFinishedScore || 0;
+
+      recordModeLabel.textContent = modeLabel;
+      recordScoreLabel.textContent = scoreValue;
+      saveScoreBtn.disabled = isPlaying || scoreValue <= 0 || scoreAlreadySaved || !scoreQualifiesForBoard;
+
+      if (isPlaying) {
+        saveScoreMessage.textContent = "게임이 끝난 뒤 기록할 수 있어요.";
+      } else if (scoreValue <= 0) {
+        saveScoreMessage.textContent = "0점은 기록하지 않아요.";
+      } else if (scoreAlreadySaved) {
+        saveScoreMessage.textContent = "이번 점수는 이미 기록했어요.";
+      } else if (!scoreQualifiesForBoard) {
+        saveScoreMessage.textContent = "현재 점수는 10등 안에 들지 못했어요.";
+      } else {
+        saveScoreMessage.textContent = "이름을 입력하고 점수를 기록해 보세요.";
+      }
+    }
+
+
+    function escapeHtml(text) {
+      return String(text ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function getAudioContext() {
+      if (!soundEnabled) return null;
+
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return null;
+
+      if (!audioContext) {
+        audioContext = new AudioCtx();
+      }
+
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+
+      return audioContext;
+    }
+
+    function playTone({ frequency = 440, duration = 0.12, type = "sine", volume = 0.08, slideTo = null }) {
+      if (!soundEnabled) return;
+
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = type;
+      osc.frequency.setValueAtTime(frequency, now);
+
+      if (slideTo) {
+        osc.frequency.exponentialRampToValueAtTime(Math.max(1, slideTo), now + duration);
+      }
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(volume, now + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + duration + 0.02);
+    }
+
+    function playSound(kind) {
+      if (!soundEnabled) return;
+
+      if (kind === "jump") {
+        playTone({ frequency: 360, slideTo: 720, duration: 0.13, type: "triangle", volume: 0.07 });
+      }
+
+      if (kind === "coin") {
+        playTone({ frequency: 880, duration: 0.08, type: "sine", volume: 0.07 });
+        setTimeout(() => playTone({ frequency: 1180, duration: 0.07, type: "sine", volume: 0.055 }), 55);
+      }
+
+      if (kind === "correct") {
+        playTone({ frequency: 660, duration: 0.1, type: "triangle", volume: 0.07 });
+        setTimeout(() => playTone({ frequency: 990, duration: 0.13, type: "triangle", volume: 0.06 }), 80);
+      }
+
+      if (kind === "wrong") {
+        playTone({ frequency: 260, slideTo: 130, duration: 0.22, type: "sawtooth", volume: 0.055 });
+      }
+
+      if (kind === "gameover") {
+        playTone({ frequency: 300, slideTo: 180, duration: 0.18, type: "sawtooth", volume: 0.055 });
+        setTimeout(() => playTone({ frequency: 170, slideTo: 90, duration: 0.25, type: "triangle", volume: 0.05 }), 140);
+      }
+
+      if (kind === "rank") {
+        playTone({ frequency: 784, duration: 0.08, type: "triangle", volume: 0.075 });
+        setTimeout(() => playTone({ frequency: 988, duration: 0.09, type: "triangle", volume: 0.07 }), 75);
+        setTimeout(() => playTone({ frequency: 1319, duration: 0.14, type: "sine", volume: 0.06 }), 155);
+      }
+
+      if (kind === "heal") {
+        playTone({ frequency: 523, duration: 0.08, type: "sine", volume: 0.075 });
+        setTimeout(() => playTone({ frequency: 659, duration: 0.08, type: "sine", volume: 0.07 }), 70);
+        setTimeout(() => playTone({ frequency: 1047, duration: 0.13, type: "triangle", volume: 0.06 }), 145);
+      }
+    }
+
+    function playBgmNote(frequency, delay = 0, duration = 0.1, volume = 0.025) {
+      if (!soundEnabled || !bgmPlaying) return;
+
+      setTimeout(() => {
+        if (!soundEnabled || !bgmPlaying) return;
+        playTone({
+          frequency,
+          duration,
+          type: "square",
+          volume
+        });
+      }, delay);
+    }
+
+    function playBgmStep() {
+      if (!soundEnabled || !bgmPlaying) return;
+
+      const finalStage = isFinalStage();
+
+      const normalPattern = [
+        [392, 494],
+        [330],
+        [392, 523],
+        [294],
+        [349, 440],
+        [330],
+        [392, 494],
+        [262]
+      ];
+
+      const finalPattern = [
+        [196, 392, 784],
+        [247, 494],
+        [220, 440, 880],
+        [262, 523],
+        [294, 587, 988],
+        [247, 494],
+        [330, 660, 1047],
+        [392, 784]
+      ];
+
+      const pattern = finalStage ? finalPattern : normalPattern;
+      const notes = pattern[bgmStep % pattern.length];
+
+      notes.forEach((note, index) => {
+        playBgmNote(
+          note,
+          index * (finalStage ? 42 : 58),
+          finalStage ? 0.105 : 0.09,
+          finalStage ? 0.027 : 0.022
+        );
+      });
+
+      bgmStep += 1;
+    }
+
+    function startBgm() {
+      if (!soundEnabled) return;
+      stopBgm();
+
+      bgmPlaying = true;
+      bgmStep = 0;
+      playBgmStep();
+
+      bgmTimer = setInterval(() => {
+        playBgmStep();
+      }, 360);
+    }
+
+    function stopBgm() {
+      bgmPlaying = false;
+
+      if (bgmTimer) {
+        clearInterval(bgmTimer);
+        bgmTimer = null;
+      }
+    }
+
+    function renderSoundButton() {
+      if (!soundToggleBtn) return;
+      soundToggleBtn.textContent = soundEnabled ? "🔊" : "🔈";
+      soundToggleBtn.title = soundEnabled ? "소리 끄기" : "소리 켜기";
+      soundToggleBtn.classList.toggle("is-off", !soundEnabled);
+    }
+
+    function primeAudioContext() {
+      if (!soundEnabled) return;
+      getAudioContext();
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      localStorage.setItem(SOUND_ENABLED_KEY, String(soundEnabled));
+      renderSoundButton();
+
+      if (!soundEnabled) {
+        stopBgm();
+        return;
+      }
+
+      playSound("coin");
+
+      if (isPlaying) {
+        startBgm();
+      }
+    }
+
+    function renderLeaderboard(items) {
+      leaderboardList.innerHTML = "";
+
+      if (!items.length) {
+        leaderboardList.innerHTML = `<div class="wrong-empty">아직 기록된 점수가 없어요.</div>`;
+        return;
+      }
+
+      items.forEach((item, index) => {
+        const rank = index + 1;
+        const div = document.createElement("div");
+        div.className = "leaderboard-item";
+        div.innerHTML = `
+          <div class="leaderboard-rank rank-${rank <= 3 ? rank : 0}">${rank}위</div>
+          <div class="leaderboard-name">${escapeHtml(item.name || "이름 없음")}</div>
+          <div class="leaderboard-score">${Number(item.score || 0)}점</div>
+        `;
+        leaderboardList.appendChild(div);
+      });
+    }
+
+
+    async function waitForFirebaseBridge(timeoutMs = 6000) {
+      const startTime = Date.now();
+
+      while (Date.now() - startTime < timeoutMs) {
+        if (window.binaryRunnerFirebase?.db) {
+          return window.binaryRunnerFirebase;
+        }
+
+        if (window.binaryRunnerFirebaseReady) {
+          try {
+            const fb = await Promise.race([
+              window.binaryRunnerFirebaseReady,
+              new Promise(resolve => setTimeout(() => resolve(null), 300))
+            ]);
+
+            if (fb?.db) return fb;
+          } catch (error) {
+            console.warn("Firebase 준비 대기 중 오류", error);
+          }
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 120));
+      }
+
+      throw new Error("Firebase 연결을 확인해주세요.");
+    }
+
+    async function fetchScores(modeKey) {
+      const fb = await waitForFirebaseBridge();
+
+      // 기존 소파와고양이 데이터는 읽지 않고, BinRun의 해당 난이도 점수만 읽습니다.
+      const scoreRef = fb.ref(fb.db, `binaryRunner/scores/${modeKey}`);
+      const snapshot = await fb.get(scoreRef);
+
+      if (!snapshot.exists()) return [];
+
+      const items = [];
+      snapshot.forEach(child => {
+        items.push({
+          id: child.key,
+          ...child.val()
+        });
+      });
+
+      items.sort((a, b) => {
+        const scoreDiff = Number(b.score || 0) - Number(a.score || 0);
+        if (scoreDiff !== 0) return scoreDiff;
+        return Number(a.createdAt || 0) - Number(b.createdAt || 0);
+      });
+
+      return items;
+    }
+
+
+    async function updateTopRankBadge(modeKey = getModeKeyFromLabel(isPlaying ? playingModeLabel : getSelectedModeLabel())) {
+      const modeLabel = getModeLabelFromKey(modeKey);
+      topRankBadge.textContent = `🏆 (${modeLabel}) 기록 불러오는 중...`;
+
+      try {
+        const items = await fetchScores(modeKey);
+
+        if (!items.length) {
+          topRankBadge.textContent = `🏆 (${modeLabel}) 기록 없음`;
+          return;
+        }
+
+        const top = items[0];
+        topRankBadge.textContent = `🏆 (${modeLabel}) 1등 · ${top.name || "이름 없음"} ${Number(top.score || 0)}점`;
+      } catch (error) {
+        console.warn("1등 기록을 불러오지 못했습니다.", error);
+        topRankBadge.textContent = `🏆 (${modeLabel}) 기록 없음`;
+      }
+    }
+
+
+    async function loadLeaderboard(modeKey = scoreBoardMode) {
+      setScoreTabs(modeKey);
+      leaderboardList.innerHTML = `<div class="wrong-empty">점수판을 불러오는 중...</div>`;
+
+      try {
+        const items = await fetchScores(modeKey);
+        renderLeaderboard(items.slice(0, 10));
+      } catch (error) {
+        console.error(error);
+        leaderboardList.innerHTML = `<div class="wrong-empty">${error.message || "점수판을 불러오지 못했어요."}</div>`;
+      }
+    }
+
+    async function checkScoreQualification(modeLabel, scoreValue) {
+      if (scoreValue <= 0) return false;
+
+      try {
+        const modeKey = getModeKeyFromLabel(modeLabel);
+        const items = await fetchScores(modeKey);
+        const top10 = items.slice(0, 10);
+
+        if (top10.length < 10) return true;
+
+        const tenth = top10[top10.length - 1];
+        return scoreValue > Number(tenth.score || 0);
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
+    }
+
+
+    function openRankAskModal() {
+      askModeLabel.textContent = lastFinishedMode;
+      askScoreLabel.textContent = lastFinishedScore;
+      rankAskModal.classList.remove("hidden");
+      playSound("rank");
+    }
+
+    function closeRankAskModal() {
+      rankAskModal.classList.add("hidden");
+    }
+
+    function openScoreRecordModal() {
+      updateRecordPanel();
+      scoreRecordModal.classList.remove("hidden");
+      setTimeout(() => playerNameInput.focus(), 80);
+    }
+
+    async function saveCurrentScore() {
+      const name = playerNameInput.value.trim();
+
+      if (isPlaying) {
+        saveScoreMessage.textContent = "게임이 끝난 뒤 기록할 수 있어요.";
+        return;
+      }
+
+      if (scoreAlreadySaved) {
+        saveScoreMessage.textContent = "이번 점수는 이미 기록했어요.";
+        return;
+      }
+
+      if (!scoreQualifiesForBoard) {
+        saveScoreMessage.textContent = "현재 점수는 10등 안에 들지 못했어요.";
+        return;
+      }
+
+      if (lastFinishedScore <= 0) {
+        saveScoreMessage.textContent = "0점은 기록하지 않아요.";
+        return;
+      }
+
+      if (!name) {
+        saveScoreMessage.textContent = "이름을 입력해주세요.";
+        playerNameInput.focus();
+        return;
+      }
+
+      try {
+        const fb = await waitForFirebaseBridge();
+
+        const stillQualifies = await checkScoreQualification(lastFinishedMode, lastFinishedScore);
+        if (!stillQualifies) {
+          scoreQualifiesForBoard = false;
+          saveScoreMessage.textContent = "아쉽게도 현재는 10등 안에 들지 못해요.";
+          return;
+        }
+
+        saveScoreBtn.disabled = true;
+        saveScoreMessage.textContent = "점수를 기록하는 중...";
+
+        const modeKey = getModeKeyFromLabel(lastFinishedMode);
+        const scoreRef = fb.ref(fb.db, `binaryRunner/scores/${modeKey}`);
+        const now = new Date();
+
+        await fb.push(scoreRef, {
+          name,
+          score: lastFinishedScore,
+          mode: lastFinishedMode,
+          createdAt: now.getTime(),
+          dateText: now.toLocaleString("ko-KR", { hour12: false })
+        });
+
+        scoreAlreadySaved = true;
+        scoreQualifiesForBoard = false;
+          saveScoreMessage.textContent = "점수를 기록했어요!";
+        await loadLeaderboard(modeKey);
+        await updateTopRankBadge(modeKey);
+        updateRecordPanel();
+      } catch (error) {
+        console.error(error);
+        saveScoreBtn.disabled = false;
+        saveScoreMessage.textContent = "점수 기록에 실패했어요.";
+      }
+    }
+
+
+    function addWrongProblem(answer, input) {
+      wrongHistory.unshift({
+        mode: playingModeLabel,
+        target: targetNumber,
+        answer,
+        input,
+        expression: getPlaceExpression(targetNumber)
+      });
+
+      wrongHistory = wrongHistory.slice(0, 3);
+    }
+
+
+    function renderWrongList() {
+      wrongList.innerHTML = "";
+
+      if (wrongHistory.length === 0) {
+        wrongList.innerHTML = `<div class="wrong-empty">아직 틀린 문제가 없어요.</div>`;
+        return;
+      }
+
+      wrongHistory.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.className = "wrong-item";
+        div.innerHTML = `
+          <b>${index + 1}. 틀린 문항: ${item.target}</b><br>
+          난이도: <b>${item.mode || finishedModeLabel}</b><br>
+          정답: <b>${item.answer}₂</b><br>
+          내 입력: <b>${item.input}₂</b>
+          <div class="explain-line">${item.target} = ${item.expression || getPlaceExpression(item.target)}</div>
+        `;
+        wrongList.appendChild(div);
+      });
+    }
+
+
+    function checkAnswer() {
+      const answer = correctBits.join("");
+      const input = inputBits.join("");
+      const isCorrect = answer === input;
+
+      playAnswerFeedback(isCorrect);
+      playSound(isCorrect ? "correct" : "wrong");
+      flashRunnerFace(isCorrect ? "correct" : "wrong", 850);
+
+      if (isCorrect) {
+        score++;
+        speed = typeof getCurrentSpeed === "function" ? getCurrentSpeed() : speed + 5;
+        scoreEl.textContent = score;
+        updateBestScore();
+        showMessage(`정답! ${targetNumber} = ${answer}₂`, 950);
+
+        setTimeout(() => {
+          clearBitFeedback();
+          appendNextRound();
+        }, 950);
+        return;
+      }
+
+      addWrongProblem(answer, input);
+      life--;
+
+      if (typeof renderLife === "function") {
+        renderLife();
+      }
+
+      const wrongIndex = inputBits.findIndex((bit, i) => bit !== correctBits[i]);
+      const wrongPlace = wrongIndex >= 0 ? places[wrongIndex] : "?";
+
+      if (life <= 0) {
+        showMessage(`틀린 부분을 확인해요!`, 900);
+
+        setTimeout(() => {
+          isPlaying = false;
+          stopBgm();
+          stopBgm();
+        stopBgm();
+      playSound("gameover");
+          finishedModeLabel = playingModeLabel;
+          lastFinishedMode = finishedModeLabel;
+          lastFinishedScore = score;
+          scoreAlreadySaved = false;
+          document.body.classList.toggle("hard-mode", playingModeLabel === "어려움");
+          updateModeLabel();
+          updateBestScore();
+
+          showMessage(`게임 종료! 정답은 ${answer}₂`, 999999);
+          startOverlay.classList.remove("hidden");
+          startOverlay.querySelector("h1").textContent = "게임 종료";
+          startOverlay.querySelector("p").innerHTML = `
+            <div class="gameover-score">${score}점</div>
+            <div class="gameover-detail">
+              최고 점수: <b>${bestScore}점</b><br>
+              방금 판 난이도: <b>${finishedModeLabel}</b>
+            </div>
+          `;
+          wrongBtn.classList.remove("hidden");
+          startBtn.textContent = "다시하기";
+
+          checkScoreQualification(lastFinishedMode, lastFinishedScore).then((qualifies) => {
+            scoreQualifiesForBoard = qualifies;
+            updateRecordPanel();
+
+            if (qualifies && !scoreAlreadySaved) {
+              setTimeout(openRankAskModal, 520);
+            }
+          });
+        }, 1050);
+      } else {
+        showMessage(`${wrongPlace}의 자리를 확인해요! 정답: ${answer}₂`, 1200);
+
+        setTimeout(() => {
+          clearBitFeedback();
+          appendNextRound();
+        }, 1200);
+      }
+    }
+    function jump() {
+      if (!isPlaying || isJumping) return;
+
+      isJumping = true;
+      playSound("jump");
+      runnerRotateDeg += 180;
+      applyRunnerRotation();
+      runner.classList.add("jump");
+
+      setTimeout(() => {
+        runner.classList.remove("jump");
+        isJumping = false;
+      }, 260);
+    }
+
+    function loop(timestamp) {
+      if (!lastTime) lastTime = timestamp;
+      const delta = (timestamp - lastTime) / 1000;
+      lastTime = timestamp;
+
+      if (isPlaying) {
+        coins.forEach((item, index) => {
+          item.x -= speed * delta;
+          item.el.style.left = `${item.x}px`;
+
+          const firstUnjudgedIndex = coins.findIndex(c => !c.judged);
+          item.el.classList.toggle("current", index === firstUnjudgedIndex);
+
+          if (!item.judged && isCollidingWithRunner(item)) {
+            finishCoin(item, 1);
+          } else if (!item.judged && hasPassedRunner(item)) {
+            finishCoin(item, 0);
+          }
+        });
+
+        coins = coins.filter(item => {
+          if (item.x < -130) {
+            item.el.remove();
+            return false;
+          }
+          return true;
+        });
+      }
+
+      renderBestScore();
+      renderLife();
+      updateModeLabel();
+      requestAnimationFrame(loop);
+    }
+
+    function resetGame() {
+      score = 0;
+      maxLife = 3;
+      life = maxLife;
+      wrongHistory = [];
+      lastFinishedScore = 0;
+      lastFinishedMode = getSelectedModeLabel();
+      scoreAlreadySaved = false;
+      scoreQualifiesForBoard = false;
+      wrongBtn.classList.add("hidden");
+      rankAskModal.classList.add("hidden");
+      scoreRecordModal.classList.add("hidden");
+      speed = getCurrentSpeed();
+
+      scoreEl.textContent = score;
+      renderBestScore();
+      renderLife();
+
+      startOverlay.querySelector("h1").textContent = "BinRun";
+      startOverlay.querySelector("p").innerHTML = `난이도를 선택하고 게임을 시작하세요.`;
+      startBtn.textContent = "게임 시작";
+      startOverlay.classList.add("hidden");
+      messageEl.classList.add("hidden");
+
+      hardMode = hardModeToggle.checked;
+      playingModeLabel = getSelectedModeLabel();
+      finishedModeLabel = playingModeLabel;
+      document.body.classList.toggle("hard-mode", hardMode);
+
+      isPlaying = true;
+      updateModeLabel();
+      startBgm();
+      updateTopRankBadge(getModeKeyFromLabel(playingModeLabel));
+      isJumping = false;
+      runnerRotateDeg = 0;
+      applyRunnerRotation();
+      runner.classList.remove("jump", "flipped");
+      setRunnerFace("normal");
+      applyRunnerRotation();
+      lastTime = 0;
+      startRound();
+    }
+
+    hardModeToggle.addEventListener("change", () => {
+      const selectedHardMode = hardModeToggle.checked;
+
+      if (isPlaying) {
+        hardMode = selectedHardMode;
+        playingModeLabel = getSelectedModeLabel();
+        document.body.classList.toggle("hard-mode", hardMode);
+        updateModeLabel();
+      }
+
+      if (!isPlaying) {
+        updateTopRankBadge(selectedHardMode ? "hard" : "easy");
+      }
+
+      difficultyDesc.textContent = selectedHardMode
+        ? "어려움: 공과 입력 순서의 자리값은 숨겨지고, 입력한 0/1만 보입니다."
+        : "쉬움: 공과 입력 순서에 자리값이 표시됩니다.";
+    });
+
+    howToBtn.addEventListener("click", () => {
+      howToModal.classList.remove("hidden");
+    });
+
+    howToCloseBtn.addEventListener("click", () => {
+      howToModal.classList.add("hidden");
+    });
+
+    howToModal.addEventListener("click", (event) => {
+      if (event.target === howToModal) {
+        howToModal.classList.add("hidden");
+      }
+    });
+
+    wrongBtn.addEventListener("click", () => {
+      renderWrongList();
+      wrongModal.classList.remove("hidden");
+    });
+
+    wrongCloseBtn.addEventListener("click", () => {
+      wrongModal.classList.add("hidden");
+    });
+
+    wrongModal.addEventListener("click", (event) => {
+      if (event.target === wrongModal) {
+        wrongModal.classList.add("hidden");
+      }
+    });
+
+    scoreBtn.addEventListener("click", () => {
+      const modeKey = getSelectedScoreBoardMode();
+      setScoreTabs(modeKey);
+      scoreModal.classList.remove("hidden");
+      loadLeaderboard(modeKey);
+    });
+
+    rankAskYesBtn.addEventListener("click", () => {
+      closeRankAskModal();
+      openScoreRecordModal();
+    });
+
+    rankAskNoBtn.addEventListener("click", () => {
+      closeRankAskModal();
+    });
+
+    rankAskModal.addEventListener("click", (event) => {
+      if (event.target === rankAskModal) {
+        closeRankAskModal();
+      }
+    });
+
+    recordCloseBtn.addEventListener("click", () => {
+      scoreRecordModal.classList.add("hidden");
+    });
+
+    scoreRecordModal.addEventListener("click", (event) => {
+      if (event.target === scoreRecordModal) {
+        scoreRecordModal.classList.add("hidden");
+      }
+    });
+
+    scoreCloseBtn.addEventListener("click", () => {
+      scoreModal.classList.add("hidden");
+    });
+
+    scoreModal.addEventListener("click", (event) => {
+      if (event.target === scoreModal) {
+        scoreModal.classList.add("hidden");
+      }
+    });
+
+    scoreEasyTab.addEventListener("click", () => {
+      loadLeaderboard("easy");
+    });
+
+    scoreHardTab.addEventListener("click", () => {
+      loadLeaderboard("hard");
+    });
+
+    saveScoreBtn.addEventListener("click", saveCurrentScore);
+
+    soundToggleBtn.addEventListener("click", toggleSound);
+
+    characterConfigBtn.addEventListener("click", () => {
+      syncCharacterInputs();
+      characterModal.classList.remove("hidden");
+    });
+
+    characterCloseBtn.addEventListener("click", () => {
+      characterModal.classList.add("hidden");
+    });
+
+    characterModal.addEventListener("click", (event) => {
+      if (event.target === characterModal) {
+        characterModal.classList.add("hidden");
+      }
+    });
+
+    [normalFaceInput, correctFaceInput, wrongFaceInput].forEach(input => {
+      input.addEventListener("input", () => {
+        characterPreview.textContent = normalizeFace(input.value, DEFAULT_CHARACTER_FACES.normal);
+      });
+    });
+
+    characterSaveBtn.addEventListener("click", () => {
+      characterFaces = {
+        normal: normalizeFace(normalFaceInput.value, DEFAULT_CHARACTER_FACES.normal),
+        correct: normalizeFace(correctFaceInput.value, DEFAULT_CHARACTER_FACES.correct),
+        wrong: normalizeFace(wrongFaceInput.value, DEFAULT_CHARACTER_FACES.wrong)
+      };
+      saveCharacterFaces();
+      syncCharacterInputs();
+      setRunnerFace("normal");
+      characterModal.classList.add("hidden");
+    });
+
+    characterResetBtn.addEventListener("click", () => {
+      characterFaces = { ...DEFAULT_CHARACTER_FACES };
+      saveCharacterFaces();
+      syncCharacterInputs();
+      setRunnerFace("normal");
+    });
+
+    startBtn.addEventListener("click", () => {
+      primeAudioContext();
+      resetGame();
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.code === "Space" || event.code === "ArrowUp") {
+        event.preventDefault();
+        jump();
+      }
+    });
+
+    game.addEventListener("pointerdown", () => {
+      jump();
+    });
+
+    syncCharacterInputs();
+    setRunnerFace("normal");
+    applyRunnerRotation();
+    renderBestScore();
+    renderLife();
+    updateModeLabel();
+    updateTopRankBadge(getModeKeyFromLabel(getSelectedModeLabel()));
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
