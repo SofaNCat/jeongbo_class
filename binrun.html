@@ -1551,8 +1551,7 @@
       border-color: #ff4f64 !important;
       background: white !important;
     }
-
-    .hidden {
+.hidden {
       display: none;
     }
 
@@ -1911,6 +1910,73 @@
       .howto-box p {
         font-size: 14px;
         line-height: 1.55;
+      }
+    }
+      .game-wrap.stage-1 {
+      background:
+        linear-gradient(to bottom, transparent calc(100% - 74px), #111 calc(100% - 74px), #111 calc(100% - 70px), transparent calc(100% - 70px)),
+        repeating-linear-gradient(to bottom, rgba(17, 17, 17, .075) 0 1px, transparent 1px 34px),
+        radial-gradient(circle at 18% 18%, rgba(255, 216, 77, .06), transparent 28%),
+        linear-gradient(180deg, #ffffff 0%, #f8fbff 64%, #ffffff 100%);
+    }
+
+    .game-wrap.stage-2 {
+      background:
+        linear-gradient(to bottom, transparent calc(100% - 74px), #111 calc(100% - 74px), #111 calc(100% - 70px), transparent calc(100% - 70px)),
+        repeating-linear-gradient(to bottom, rgba(17, 17, 17, .075) 0 1px, transparent 1px 34px),
+        radial-gradient(circle at 18% 18%, rgba(255, 216, 77, .12), transparent 29%),
+        radial-gradient(circle at 82% 20%, rgba(255, 79, 100, .05), transparent 24%),
+        linear-gradient(180deg, #fffdf7 0%, #f8fbff 62%, #fffaf2 100%);
+    }
+
+    .game-wrap.stage-3 {
+      background:
+        linear-gradient(to bottom, transparent calc(100% - 74px), #111 calc(100% - 74px), #111 calc(100% - 70px), transparent calc(100% - 70px)),
+        repeating-linear-gradient(to bottom, rgba(17, 17, 17, .08) 0 1px, transparent 1px 34px),
+        radial-gradient(circle at 18% 18%, rgba(255, 216, 77, .16), transparent 30%),
+        radial-gradient(circle at 82% 20%, rgba(255, 79, 100, .09), transparent 25%),
+        linear-gradient(180deg, #fffaf2 0%, #fffdfd 58%, #fff4ee 100%);
+    }
+
+    .game-wrap.stage-4 {
+      background:
+        linear-gradient(to bottom, transparent calc(100% - 74px), #111 calc(100% - 74px), #111 calc(100% - 70px), transparent calc(100% - 70px)),
+        repeating-linear-gradient(to bottom, rgba(17, 17, 17, .085) 0 1px, transparent 1px 34px),
+        radial-gradient(circle at 18% 18%, rgba(255, 216, 77, .18), transparent 30%),
+        radial-gradient(circle at 82% 20%, rgba(255, 79, 100, .15), transparent 26%),
+        linear-gradient(180deg, #fff6ee 0%, #fffaf8 55%, #ffefea 100%);
+    }
+
+    .game-wrap.stage-5 {
+      background:
+        linear-gradient(to bottom, transparent calc(100% - 74px), #111 calc(100% - 74px), #111 calc(100% - 70px), transparent calc(100% - 70px)),
+        repeating-linear-gradient(to bottom, rgba(17, 17, 17, .09) 0 1px, transparent 1px 34px),
+        radial-gradient(circle at 18% 18%, rgba(255, 216, 77, .22), transparent 31%),
+        radial-gradient(circle at 82% 20%, rgba(255, 79, 100, .23), transparent 28%),
+        linear-gradient(180deg, #fff2ea 0%, #fff8f2 52%, #ffe9e6 100%);
+    }
+
+    .game-wrap.stage-overdrive {
+      animation: gameStageOverdriveBg 1.05s ease-in-out infinite alternate;
+    }
+
+    @keyframes gameStageOverdriveBg {
+      0% {
+        background:
+          linear-gradient(to bottom, transparent calc(100% - 74px), #111 calc(100% - 74px), #111 calc(100% - 70px), transparent calc(100% - 70px)),
+          repeating-linear-gradient(to bottom, rgba(17, 17, 17, .10) 0 1px, transparent 1px 34px),
+          radial-gradient(circle at 16% 18%, rgba(255, 79, 100, .24), transparent 30%),
+          radial-gradient(circle at 84% 20%, rgba(255, 216, 77, .24), transparent 28%),
+          linear-gradient(180deg, #fff0ec 0%, #fff8ed 52%, #ffe5e2 100%);
+      }
+
+      100% {
+        background:
+          linear-gradient(to bottom, transparent calc(100% - 74px), #111 calc(100% - 74px), #111 calc(100% - 70px), transparent calc(100% - 70px)),
+          repeating-linear-gradient(to bottom, rgba(17, 17, 17, .13) 0 1px, transparent 1px 34px),
+          radial-gradient(circle at 22% 22%, rgba(255, 79, 100, .36), transparent 32%),
+          radial-gradient(circle at 78% 24%, rgba(255, 216, 77, .31), transparent 30%),
+          linear-gradient(180deg, #ffe9e7 0%, #fff5e7 48%, #ffdeda 100%);
       }
     }
   </style>
@@ -2298,12 +2364,52 @@
       if (score < 4) return [4, 2, 1];
       if (score < 9) return [8, 4, 2, 1];
       if (score < 15) return [16, 8, 4, 2, 1];
-      if (score < 35) return [32, 16, 8, 4, 2, 1];
+      if (score < 30) return [32, 16, 8, 4, 2, 1];
       return [64, 32, 16, 8, 4, 2, 1];
     }
 
     function isFinalStage() {
       return getDifficultyPlaces()[0] >= 64;
+    }
+
+    function isOverdriveStage() {
+      return score >= 40;
+    }
+
+    function getVisualStage() {
+      if (score >= 40) return "stage-overdrive";
+      if (score >= 30) return "stage-5";
+      if (score >= 15) return "stage-4";
+      if (score >= 9) return "stage-3";
+      if (score >= 4) return "stage-2";
+      return "stage-1";
+    }
+
+    function getVisualStage() {
+      if (score >= 40) return "stage-overdrive";
+      if (score >= 30) return "stage-5";
+      if (score >= 15) return "stage-4";
+      if (score >= 9) return "stage-3";
+      if (score >= 4) return "stage-2";
+      return "stage-1";
+    }
+
+    function updateStageVisuals() {
+      const target = game || document.querySelector(".game-wrap");
+      if (!target) return;
+
+      target.classList.remove(
+        "final-stage",
+        "overdrive-stage",
+        "stage-1",
+        "stage-2",
+        "stage-3",
+        "stage-4",
+        "stage-5",
+        "stage-overdrive"
+      );
+
+      target.classList.add(getVisualStage());
     }
 
     function canSpawnHeartCoin() {
@@ -2312,11 +2418,7 @@
 
     function shouldSpawnHeartCoin() {
       if (!canSpawnHeartCoin()) return false;
-      return Math.random() < 0.2;
-    }
-
-    function getHeartCoinValue() {
-      return "❤️";
+      return Math.random() < 0.18;
     }
 
     function applyHeartCoinEffect() {
@@ -2333,6 +2435,26 @@
       renderLife();
     }
 
+    function createHeartCoin(x, roundNumber) {
+      const coinWrap = document.createElement("div");
+      coinWrap.className = "coin-wrap heart-coin-wrap";
+      coinWrap.style.left = `${x}px`;
+      coinWrap.innerHTML = `
+        <div class="place-tag">회복</div>
+        <div class="coin red-heart-coin">❤️</div>
+      `;
+
+      game.appendChild(coinWrap);
+
+      coins.push({
+        el: coinWrap,
+        x,
+        place: 0,
+        roundNumber,
+        isHeartCoin: true,
+        judged: false
+      });
+    }
 
     function toBits(num, placeList) {
       return placeList.map(place => (num & place) ? 1 : 0);
@@ -2467,7 +2589,9 @@
     }
 
     function getCurrentSpeed() {
-      return getBaseSpeed() + Math.min(score * 7, 140);
+      const baseSpeed = getBaseSpeed() + Math.min(score * 7, 140);
+      const overdriveBonus = score >= 40 ? Math.min((score - 39) * 18, 190) : 0;
+      return baseSpeed + overdriveBonus;
     }
 
     function clearBitFeedback() {
@@ -2495,22 +2619,16 @@
 
 
     function resetInputOrderScroll() {
-      const candidates = [
+      const containers = [
+        bitBoxes,
         document.getElementById("bitBoxes"),
-        document.getElementById("inputBoxes"),
-        document.getElementById("inputStatus"),
-        document.querySelector(".bit-boxes"),
-        document.querySelector(".input-boxes"),
-        document.querySelector(".input-status"),
-        document.querySelector(".bit-row"),
-        document.querySelector(".input-row")
+        document.querySelector(".bit-boxes")
       ].filter(Boolean);
 
-      candidates.forEach((el) => {
+      containers.forEach((el) => {
+        el.scrollLeft = 0;
         if (typeof el.scrollTo === "function") {
           el.scrollTo({ left: 0, behavior: "auto" });
-        } else {
-          el.scrollLeft = 0;
         }
       });
     }
@@ -2536,6 +2654,8 @@
         box.appendChild(valueEl);
         bitBoxes.appendChild(box);
       });
+
+      resetInputOrderScroll();
     }
 
     function updateBitBoxes() {
@@ -2553,15 +2673,19 @@
         }
       });
 
-      if (activeBox) {
-        const container = bitBoxes;
-        const targetLeft =
-          activeBox.offsetLeft -
-          container.clientWidth / 2 +
-          activeBox.clientWidth / 2;
+      const container = bitBoxes;
+
+      if (currentIndex === 0) {
+        resetInputOrderScroll();
+        return;
+      }
+
+      if (activeBox && container) {
+        const padding = 18;
+        const targetLeft = Math.max(0, activeBox.offsetLeft - padding);
 
         container.scrollTo({
-          left: Math.max(0, targetLeft),
+          left: targetLeft,
           behavior: "smooth"
         });
       }
@@ -2602,6 +2726,7 @@
     }
 
     function startRound() {
+      updateStageVisuals();
       resetInputOrderScroll();
       places = getDifficultyPlaces();
 
@@ -2614,6 +2739,7 @@
       targetNumberEl.textContent = targetNumber;
       hintText.textContent = "";
       renderBitBoxes();
+      resetInputOrderScroll();
       updateBitBoxes();
 
       clearCoins();
@@ -2626,11 +2752,12 @@
       if (shouldSpawnHeartCoin()) {
         const heartIndex = Math.floor(Math.random() * Math.max(1, places.length - 1));
         const heartX = startX + (heartIndex + 0.55) * 190;
-        createCoin(0, heartX, targetNumber, true);
+        createHeartCoin(heartX, targetNumber);
       }
     }
 
     function appendNextRound() {
+      updateStageVisuals();
       const nextPlaces = getDifficultyPlaces();
       const max = nextPlaces[0] * 2 - 1;
       const nextTarget = Math.floor(Math.random() * (max + 1));
@@ -2644,6 +2771,7 @@
       targetNumberEl.textContent = targetNumber;
       hintText.textContent = "";
       renderBitBoxes();
+      resetInputOrderScroll();
       updateBitBoxes();
 
       const farthestX = coins.reduce((max, item) => Math.max(max, item.x), game.clientWidth);
@@ -2652,13 +2780,18 @@
       nextPlaces.forEach((place, index) => {
         createCoin(place, startX + index * 190, targetNumber);
       });
+
+      if (shouldSpawnHeartCoin()) {
+        const heartIndex = Math.floor(Math.random() * Math.max(1, places.length - 1));
+        const heartX = startX + (heartIndex + 0.55) * 190;
+        createHeartCoin(heartX, nextTarget);
+      }
     }
 
     function finishCoin(item, bit) {
       if (!item || item.judged) return;
 
       item.judged = true;
-
       if (item.isHeartCoin) {
         if (bit === 1) {
           applyHeartCoinEffect();
@@ -2677,8 +2810,6 @@
       if (bit === 1) {
         playSound("coin");
       }
-
-      showMessage(bit === 1 ? "1" : "0", 560);
 
       if (bit === 1) {
         item.el.classList.add("collected");
@@ -2853,6 +2984,18 @@
         setTimeout(() => playTone({ frequency: 659, duration: 0.08, type: "sine", volume: 0.07 }), 70);
         setTimeout(() => playTone({ frequency: 1047, duration: 0.13, type: "triangle", volume: 0.06 }), 145);
       }
+
+      if (kind === "mode") {
+        playTone({ frequency: 520, duration: 0.055, type: "square", volume: 0.055 });
+        setTimeout(() => playTone({ frequency: 690, duration: 0.06, type: "square", volume: 0.045 }), 45);
+      }
+
+      if (kind === "levelup") {
+        playTone({ frequency: 523, duration: 0.07, type: "triangle", volume: 0.075 });
+        setTimeout(() => playTone({ frequency: 659, duration: 0.075, type: "triangle", volume: 0.07 }), 70);
+        setTimeout(() => playTone({ frequency: 784, duration: 0.08, type: "triangle", volume: 0.065 }), 145);
+        setTimeout(() => playTone({ frequency: 1047, duration: 0.16, type: "sine", volume: 0.06 }), 225);
+      }
     }
 
     function playBgmNote(frequency, delay = 0, duration = 0.1, volume = 0.025) {
@@ -2873,6 +3016,7 @@
       if (!soundEnabled || !bgmPlaying) return;
 
       const finalStage = isFinalStage();
+      const overdriveStage = isOverdriveStage();
 
       const normalPattern = [
         [392, 494],
@@ -2896,19 +3040,33 @@
         [392, 784]
       ];
 
-      const pattern = finalStage ? finalPattern : normalPattern;
+      const overdrivePattern = [
+        [196, 392, 784, 1175],
+        [233, 466, 932],
+        [220, 440, 880, 1319],
+        [262, 523, 1047],
+        [294, 587, 1175, 1568],
+        [247, 494, 988],
+        [330, 660, 1319, 1760],
+        [392, 784, 1568],
+        [349, 698, 1397],
+        [294, 587, 1175],
+        [262, 523, 1047, 1568],
+        [247, 494, 988]
+      ];
+
+      const pattern = overdriveStage ? overdrivePattern : (finalStage ? finalPattern : normalPattern);
       const notes = pattern[bgmStep % pattern.length];
 
+      const delay = overdriveStage ? 28 : (finalStage ? 42 : 58);
+      const duration = overdriveStage ? 0.085 : (finalStage ? 0.105 : 0.09);
+      const volume = overdriveStage ? 0.031 : (finalStage ? 0.027 : 0.022);
+
       notes.forEach((note, index) => {
-        playBgmNote(
-          note,
-          index * (finalStage ? 42 : 58),
-          finalStage ? 0.105 : 0.09,
-          finalStage ? 0.027 : 0.022
-        );
+        playBgmNote(note, index * delay, duration, volume);
       });
 
-      bgmStep += 1;
+      bgmStep += overdriveStage ? 2 : 1;
     }
 
     function startBgm() {
@@ -2948,7 +3106,9 @@
     function toggleSound() {
       soundEnabled = !soundEnabled;
       localStorage.setItem(SOUND_ENABLED_KEY, String(soundEnabled));
-      renderSoundButton();
+      updateStageVisuals();
+    updateStageVisuals();
+    renderSoundButton();
 
       if (!soundEnabled) {
         stopBgm();
@@ -3222,7 +3382,15 @@
       flashRunnerFace(isCorrect ? "correct" : "wrong", 850);
 
       if (isCorrect) {
+        const previousMaxPlace = getDifficultyPlaces()[0];
         score++;
+        const currentMaxPlace = getDifficultyPlaces()[0];
+        updateStageVisuals();
+
+        if (currentMaxPlace > previousMaxPlace) {
+          playSound("levelup");
+          showMessage("LEVEL UP!", 900);
+        }
         speed = typeof getCurrentSpeed === "function" ? getCurrentSpeed() : speed + 5;
         scoreEl.textContent = score;
         updateBestScore();
@@ -3258,8 +3426,7 @@
           lastFinishedMode = finishedModeLabel;
           lastFinishedScore = score;
           scoreAlreadySaved = false;
-          document.body.classList.toggle("hard-mode", playingModeLabel === "어려움");
-          updateModeLabel();
+updateModeLabel();
           updateBestScore();
 
           showMessage(`게임 종료! 정답은 ${answer}₂`, 999999);
@@ -3370,9 +3537,7 @@
       hardMode = hardModeToggle.checked;
       playingModeLabel = getSelectedModeLabel();
       finishedModeLabel = playingModeLabel;
-      document.body.classList.toggle("hard-mode", hardMode);
-
-      isPlaying = true;
+isPlaying = true;
       updateModeLabel();
       startBgm();
       updateTopRankBadge(getModeKeyFromLabel(playingModeLabel));
@@ -3387,13 +3552,13 @@
     }
 
     hardModeToggle.addEventListener("change", () => {
-      const selectedHardMode = hardModeToggle.checked;
+      
+      playSound("mode");const selectedHardMode = hardModeToggle.checked;
 
       if (isPlaying) {
         hardMode = selectedHardMode;
         playingModeLabel = getSelectedModeLabel();
-        document.body.classList.toggle("hard-mode", hardMode);
-        updateModeLabel();
+updateModeLabel();
       }
 
       if (!isPlaying) {
