@@ -3509,6 +3509,38 @@
       return items;
     }
 
+    async function updateTopRankBadge() {
+      if (!topRankBadge) return;
+
+      const modeKey = hardMode ? "hard" : "easy";
+      const modeLabel = hardMode ? "어려움" : "쉬움";
+
+      topRankBadge.dataset.mode = modeKey;
+      topRankBadge.textContent = `🏆 (${modeLabel}) 기록 불러오는 중...`;
+
+      try {
+        const scores = await fetchScores(modeKey);
+
+        if (topRankBadge.dataset.mode !== modeKey) return;
+
+        if (!scores.length) {
+          topRankBadge.textContent = `🏆 (${modeLabel}) 기록 없음`;
+          return;
+        }
+
+        const best = scores[0];
+        const bestName = escapeHtml(best.name || "익명");
+        const bestScore = Number(best.score || 0);
+
+        topRankBadge.textContent = `🏆 (${modeLabel}) 1등 · ${bestName} ${bestScore}점`;
+      } catch (error) {
+        if (topRankBadge.dataset.mode === modeKey) {
+          topRankBadge.textContent = `🏆 (${modeLabel}) 기록 확인 불가`;
+        }
+      }
+    }
+
+
 
     async function updateTopRankBadge(modeKey = getModeKeyFromLabel(isPlaying ? playingModeLabel : getSelectedModeLabel())) {
       const modeLabel = getModeLabelFromKey(modeKey);
@@ -3634,7 +3666,8 @@
           dateText: now.toLocaleString("ko-KR", { hour12: false })
         });
 
-        scoreAlreadySaved = true;
+        
+      updateTopRankBadge();scoreAlreadySaved = true;
         scoreQualifiesForBoard = false;
           saveScoreMessage.textContent = "점수를 기록했어요!";
         await loadLeaderboard(modeKey);
@@ -3881,6 +3914,7 @@ updateModeLabel();
       difficultyDesc.textContent = selectedHardMode
         ? "어려움: 공과 입력 순서의 자리값은 숨겨지고, 입력한 0/1만 보입니다."
         : "쉬움: 공과 입력 순서에 자리값이 표시됩니다.";
+      updateTopRankBadge();
     });
 
     howToBtn.addEventListener("click", () => {
