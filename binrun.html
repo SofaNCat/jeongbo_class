@@ -2276,6 +2276,148 @@
         height: 30px;
       }
     }
+      /* scoreboard deadline card */
+    .scoreboard-deadline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 3px solid var(--ink);
+      border-radius: 18px;
+      background: #fff8d8;
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 11px 14px;
+      margin: 12px 0 14px;
+      font-weight: 900;
+      color: var(--ink);
+      text-align: center;
+      word-break: keep-all;
+    }
+
+    .scoreboard-deadline .deadline-icon {
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      border: 3px solid var(--ink);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 18px;
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .scoreboard-deadline .deadline-copy {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .scoreboard-deadline .deadline-main {
+      display: block;
+      font-size: 17px;
+      font-weight: 900;
+      line-height: 1.15;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+
+    .scoreboard-deadline .deadline-sub {
+      display: block;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.25;
+      color: #666;
+      letter-spacing: -0.02em;
+    }
+
+    .scoreboard-deadline.closed {
+      background: #1f1f1f;
+      color: #fff;
+    }
+
+    .scoreboard-deadline.closed .deadline-icon {
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .scoreboard-deadline.closed .deadline-main,
+    .scoreboard-deadline.closed .deadline-sub {
+      color: #fff;
+    }
+
+    @media (max-width: 560px) {
+      .scoreboard-deadline {
+        gap: 7px;
+        padding: 10px 11px;
+        margin: 10px 0 12px;
+        border-radius: 16px;
+      }
+
+      .scoreboard-deadline .deadline-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+      }
+
+      .scoreboard-deadline .deadline-main {
+        font-size: 15px;
+      }
+
+      .scoreboard-deadline .deadline-sub {
+        font-size: 12px;
+      }
+    }
+      /* rank date / streak badge readability */
+    .leaderboard-item .rank-info .rank-date {
+      font-size: 10.5px !important;
+      font-weight: 700 !important;
+      color: #9a9a9a !important;
+      line-height: 1.2 !important;
+      letter-spacing: -0.02em;
+      opacity: .9;
+      margin-top: 1px;
+    }
+
+    .leaderboard-item .rank-info .rank-streak-badge {
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      align-self: flex-start;
+      width: fit-content;
+      border: 3px solid var(--ink) !important;
+      border-radius: 999px;
+      background: #ffd84d !important;
+      box-shadow: 2px 2px 0 var(--ink);
+      padding: 4px 9px;
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--ink) !important;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 560px) {
+      .leaderboard-item .rank-info .rank-date {
+        font-size: 10px !important;
+      }
+
+      .leaderboard-item .rank-info .rank-streak-badge {
+        font-size: 10px;
+        padding: 3px 8px;
+        border-width: 2px !important;
+        box-shadow: 2px 2px 0 var(--ink);
+      }
+    }
+      /* hide deadline badge inside game screen */
+    #deadlineBadge {
+      display: none !important;
+    }
+
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
@@ -2284,6 +2426,7 @@
       ref,
       push,
       get,
+      remove,
       query,
       orderByChild,
       limitToLast
@@ -2329,6 +2472,7 @@
           ref,
           push,
           get,
+          remove,
           query,
           orderByChild,
           limitToLast
@@ -2345,6 +2489,7 @@
           ref,
           push,
           get,
+          remove,
           query,
           orderByChild,
           limitToLast
@@ -2446,7 +2591,8 @@
               <button id="scoreHardTab" class="score-tab" type="button">어려움</button>
             </div>
 
-            <div class="leaderboard-list" id="leaderboardList">
+            <div class="scoreboard-deadline" id="scoreboardDeadline">마감일 확인 중...</div>
+        <div class="leaderboard-list" id="leaderboardList">
               <div class="wrong-empty">점수판을 불러오는 중...</div>
             </div>
 
@@ -2570,8 +2716,15 @@
     const messageEl = document.getElementById("message");
     const lifeText = null;
     const runnerLife = document.getElementById("runnerLife");
+    // 점수 기록 마감일 설정
+    // 원하는 마감일로 바꾸면 됩니다. 예: "2026-07-31T23:59:59+09:00"
+    const SCORE_DEADLINE = "2026-06-30T23:59:59+09:00";
+
     const topRankBadge = document.getElementById("topRankBadge");
-    const hintText = document.getElementById("hintText");
+    
+    const deadlineBadge = document.getElementById("deadlineBadge");
+    const scoreboardDeadline = document.getElementById("scoreboardDeadline");
+const hintText = document.getElementById("hintText");
     const startOverlay = document.getElementById("startOverlay");
     const startBtn = document.getElementById("startBtn");
     const hardModeToggle = document.getElementById("hardModeToggle");
@@ -3421,6 +3574,7 @@
       updateStageVisuals();
     updateStageVisuals();
     renderSoundButton();
+    renderScoreDeadline();
 
       if (!soundEnabled) {
         stopBgm();
@@ -3434,27 +3588,72 @@
       }
     }
 
-    function renderLeaderboard(items) {
-      leaderboardList.innerHTML = "";
+    function formatScoreRecordDate(createdAt, fallback = "") {
+      const date = new Date(Number(createdAt || 0));
 
+      if (!Number.isNaN(date.getTime()) && createdAt) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}.${month}.${day}`;
+      }
+
+      if (fallback) {
+        const match = String(fallback).match(/(\d{4}\.\d{2}\.\d{2})/);
+        if (match) return match[1];
+      }
+
+      return "기록 날짜 없음";
+    }
+
+    function getRankHoldDays(createdAt) {
+      const date = new Date(Number(createdAt || 0));
+
+      if (Number.isNaN(date.getTime()) || !createdAt) {
+        return 1;
+      }
+
+      const now = new Date();
+      const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const recordStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const diffDays = Math.floor((nowStart.getTime() - recordStart.getTime()) / 86400000) + 1;
+
+      return Math.max(1, diffDays);
+    }
+
+    function renderLeaderboard(items) {
       if (!items.length) {
-        leaderboardList.innerHTML = `<div class="wrong-empty">아직 기록된 점수가 없어요.</div>`;
+        leaderboardList.innerHTML = `<div class="wrong-empty">아직 기록이 없어요.</div>`;
         return;
       }
 
-      items.forEach((item, index) => {
-        const rank = index + 1;
-        const div = document.createElement("div");
-        div.className = "leaderboard-item";
-        div.innerHTML = `
-          <div class="leaderboard-rank rank-${rank <= 3 ? rank : 0}">${rank}위</div>
-          <div class="leaderboard-name">${escapeHtml(item.name || "이름 없음")}</div>
-          <div class="leaderboard-score">${Number(item.score || 0)}점</div>
+      leaderboardList.innerHTML = "";
+
+      items.slice(0, 10).forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "leaderboard-item";
+
+        const rankClass = index < 3 ? `rank-${index + 1}` : "";
+        const rankLabel = `${index + 1}위`;
+        const recordDateText = formatScoreRecordDate(item.createdAt, item.dateText);
+        const holdDays = getRankHoldDays(item.createdAt);
+        const streakBadge = index === 0
+          ? `<span class="rank-streak-badge">🏆 ${holdDays}일째 유지중!</span>`
+          : "";
+
+        row.innerHTML = `
+          <div class="rank-badge ${rankClass}">${rankLabel}</div>
+          <div class="rank-info">
+            <div class="rank-name">${escapeHtml(item.name)}</div>
+            <div class="rank-date">${recordDateText}</div>
+            ${streakBadge}
+          </div>
+          <div class="rank-score">${item.score}점</div>
         `;
-        leaderboardList.appendChild(div);
+
+        leaderboardList.appendChild(row);
       });
     }
-
 
     async function waitForFirebaseBridge(timeoutMs = 6000) {
       const startTime = Date.now();
@@ -3476,7 +3675,6 @@
             console.warn("Firebase 준비 대기 중 오류", error);
           }
         }
-
         await new Promise(resolve => setTimeout(resolve, 120));
       }
 
@@ -3486,7 +3684,6 @@
     async function fetchScores(modeKey) {
       const fb = await waitForFirebaseBridge();
 
-      // 기존 소파와고양이 데이터는 읽지 않고, BinRun의 해당 난이도 점수만 읽습니다.
       const scoreRef = fb.ref(fb.db, `binaryRunner/scores/${modeKey}`);
       const snapshot = await fb.get(scoreRef);
 
@@ -3494,9 +3691,14 @@
 
       const items = [];
       snapshot.forEach(child => {
+        const value = child.val() || {};
         items.push({
           id: child.key,
-          ...child.val()
+          name: value.name || "이름 없음",
+          score: Number(value.score || 0),
+          mode: value.mode || modeKey,
+          createdAt: Number(value.createdAt || 0),
+          dateText: value.dateText || ""
         });
       });
 
@@ -3507,6 +3709,107 @@
       });
 
       return items;
+    }
+
+    async function cleanupScoresOutsideTop10(modeKey) {
+      try {
+        const fb = await waitForFirebaseBridge();
+        const items = await fetchScores(modeKey);
+        const removeTargets = items.slice(10).filter(item => item.id);
+
+        if (!removeTargets.length) return;
+
+        await Promise.all(
+          removeTargets.map(item => {
+            const scoreItemRef = fb.ref(fb.db, `binaryRunner/scores/${modeKey}/${item.id}`);
+            return fb.remove(scoreItemRef);
+          })
+        );
+      } catch (error) {
+        console.warn("10위 밖 기록 정리에 실패했어요.", error);
+      }
+    }
+
+    async function cleanupAllScoresOutsideTop10() {
+      await Promise.all([
+        cleanupScoresOutsideTop10("easy"),
+        cleanupScoresOutsideTop10("hard")
+      ]);
+    }
+
+    function getScoreDeadlineDate() {
+      return new Date(SCORE_DEADLINE);
+    }
+
+    function isScoreDeadlineClosed() {
+      const deadline = getScoreDeadlineDate();
+      if (Number.isNaN(deadline.getTime())) return false;
+      return Date.now() > deadline.getTime();
+    }
+
+    function getDeadlineDdayText() {
+      const deadline = getScoreDeadlineDate();
+
+      if (Number.isNaN(deadline.getTime())) {
+        return "마감일 미설정";
+      }
+
+      const now = new Date();
+      const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const deadlineStart = new Date(deadline.getFullYear(), deadline.getMonth(), deadline.getDate());
+      const diffDays = Math.ceil((deadlineStart.getTime() - nowStart.getTime()) / 86400000);
+
+      if (diffDays < 0) return "마감 종료";
+      return `D-${diffDays}`;
+    }
+
+    function getDeadlineDateText() {
+      const deadline = getScoreDeadlineDate();
+
+      if (Number.isNaN(deadline.getTime())) {
+        return "마감일을 확인할 수 없어요.";
+      }
+
+      const year = deadline.getFullYear();
+      const month = String(deadline.getMonth() + 1).padStart(2, "0");
+      const date = String(deadline.getDate()).padStart(2, "0");
+      const hour = String(deadline.getHours()).padStart(2, "0");
+      const minute = String(deadline.getMinutes()).padStart(2, "0");
+
+      return `${year}.${month}.${date} ${hour}:${minute} 마감`;
+    }
+
+    function renderScoreDeadline() {
+      const ddayText = getDeadlineDdayText();
+      const dateText = getDeadlineDateText();
+      const closed = isScoreDeadlineClosed();
+
+      if (deadlineBadge) {
+        deadlineBadge.classList.toggle("closed", closed);
+        deadlineBadge.innerHTML = `
+          <span class="deadline-main">${closed ? "기록 마감 종료" : `기록 마감 ${ddayText}`}</span>
+          <span class="deadline-sub">${dateText}</span>
+        `;
+      }
+
+      if (scoreboardDeadline) {
+        scoreboardDeadline.classList.toggle("closed", closed);
+        scoreboardDeadline.innerHTML = closed
+          ? `
+            <span class="deadline-icon">🔒</span>
+            <span class="deadline-copy">
+              <span class="deadline-main">기록 등록 마감</span>
+              <span class="deadline-sub">${dateText}</span>
+            </span>
+          `
+          : `
+            <span class="deadline-icon">⏰</span>
+            <span class="deadline-copy">
+              <span class="deadline-main">기록 마감 ${ddayText}</span>
+              <span class="deadline-sub">${dateText}</span>
+            </span>
+          `;
+      }
     }
 
     async function updateTopRankBadge() {
@@ -3565,9 +3868,11 @@
 
     async function loadLeaderboard(modeKey = scoreBoardMode) {
       setScoreTabs(modeKey);
+      renderScoreDeadline();
       leaderboardList.innerHTML = `<div class="wrong-empty">점수판을 불러오는 중...</div>`;
 
       try {
+        await cleanupScoresOutsideTop10(modeKey);
         const items = await fetchScores(modeKey);
         renderLeaderboard(items.slice(0, 10));
       } catch (error) {
@@ -3577,10 +3882,18 @@
     }
 
     async function checkScoreQualification(modeLabel, scoreValue) {
+      renderScoreDeadline();
+
+      if (isScoreDeadlineClosed()) {
+        showMessage("기록 등록 마감", 900);
+        return;
+      }
+
       if (scoreValue <= 0) return false;
 
       try {
         const modeKey = getModeKeyFromLabel(modeLabel);
+        await cleanupScoresOutsideTop10(modeKey);
         const items = await fetchScores(modeKey);
         const top10 = items.slice(0, 10);
 
@@ -3641,6 +3954,13 @@
         return;
       }
 
+      renderScoreDeadline();
+
+      if (isScoreDeadlineClosed()) {
+        saveScoreMessage.textContent = "점수 기록 등록이 마감되었습니다.";
+        return;
+      }
+
       try {
         const fb = await waitForFirebaseBridge();
 
@@ -3667,7 +3987,9 @@
         });
 
         
-      updateTopRankBadge();scoreAlreadySaved = true;
+      
+
+        await cleanupScoresOutsideTop10(modeKey);updateTopRankBadge();scoreAlreadySaved = true;
         scoreQualifiesForBoard = false;
           saveScoreMessage.textContent = "점수를 기록했어요!";
         await loadLeaderboard(modeKey);
@@ -3915,6 +4237,7 @@ updateModeLabel();
         ? "어려움: 공과 입력 순서의 자리값은 숨겨지고, 입력한 0/1만 보입니다."
         : "쉬움: 공과 입력 순서에 자리값이 표시됩니다.";
       updateTopRankBadge();
+    cleanupAllScoresOutsideTop10();
     });
 
     howToBtn.addEventListener("click", () => {
